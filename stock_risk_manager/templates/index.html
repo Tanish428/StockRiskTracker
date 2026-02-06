@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>StockRiskTracker</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">📈</div>
+                <h2>StockRiskTracker</h2>
+            </div>
+            <a href="#">Dashboard</a>
+            <a href="#">Watchlist</a>
+            <a href="#">History</a>
+            <a href="#">Dictionary</a>
+            <a href="#" class="logout-btn">Logout</a>
+        </div>
+
+        <div class="main">
+            <div class="header-top">
+                <h1>Dashboard</h1>
+                <div class="profile-section">
+                    <img src="{% static 'images/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
+                    <div class="profile-menu" id="profileMenu">
+                        <a href="#">Profile</a>
+                        <a href="#" class="menu-logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="watchlist">
+                <h3>Risk Analysis Watchlist</h3>
+
+                {% if stocks %}
+                {% for stock in stocks %}
+                <div class="stock">
+                    <span>{{ stock.name }}</span>
+                    <span class="stock-value">{{ stock.value }}</span>
+                    <span class="{% if stock.risk == 'SAFE' %}safe{% else %}risky{% endif %}">
+                        {{ stock.risk }}
+                    </span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No stocks available</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Profile menu toggle
+        const profileBtn = document.getElementById('profileBtn');
+        const profileMenu = document.getElementById('profileMenu');
+
+        profileBtn.addEventListener('click', function() {
+            profileMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-section')) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    </script>
+
+</body>
+
+</html>
