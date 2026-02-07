@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account | StockRiskTracker</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+</head>
+<body>
+
+<div class="register-wrapper">
+    <div class="register-card">
+
+        <h1>Create Account</h1>
+        <p class="subtitle">Start your risk-aware investing journey</p>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+                <small class="error"></small>
+            </div>
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter email">
+                <small class="error"></small>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Create password">
+                <small class="error"></small>
+            </div>
+
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm password">
+                <small class="error"></small>
+            </div>
+
+            <button type="submit"   >Create Account →</button>
+        </form>
+
+        <div class="footer-text">
+            Already have an account? <span>Login</span>
+        </div>
+
+    </div>
+</div>
+
+<script src="register.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Profile Quiz</title>
+     {% load static %}
+    <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>📊 Risk Profile Quiz</h1>
+    <p class="quiz-subtitle">
+        Answer these 3 questions to know whether you are a Safe or Risky investor
+    </p>
+
+    <!-- Question 1 -->
+    <div class="quiz-card">
+        <h3>1️⃣ If your stock investment drops by <b>20%</b> suddenly, what will you do?</h3>
+        <div class="options">
+            <div class="option" onclick="selectAnswer(1,1,this)">
+                😰 Sell immediately
+            </div>
+            <div class="option" onclick="selectAnswer(1,2,this)">
+                😐 Hold and wait
+            </div>
+            <div class="option" onclick="selectAnswer(1,3,this)">
+                🚀 Buy more at lower price
+            </div>
+        </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="quiz-card">
+        <h3>2️⃣ How long do you plan to keep your money invested?</h3>
+        <div class="options">
+            <div class="option" onclick="selectAnswer(2,1,this)">
+                ⏳ Less than 1 year
+            </div>
+            <div class="option" onclick="selectAnswer(2,2,this)">
+                📅 1–3 years
+            </div>
+            <div class="option" onclick="selectAnswer(2,3,this)">
+                🏗️ More than 3 years
+            </div>
+        </div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="quiz-card">
+        <h3>3️⃣ How do you feel about daily stock price ups and downs?</h3>
+        <div class="options">
+            <div class="option" onclick="selectAnswer(3,1,this)">
+                😟 I feel stressed
+            </div>
+            <div class="option" onclick="selectAnswer(3,2,this)">
+                🙂 I’m okay with some movement
+            </div>
+            <div class="option" onclick="selectAnswer(3,3,this)">
+                📈 I see it as opportunity
+            </div>
+        </div>
+    </div>
+
+    <button class="submit-btn" onclick="calculateRisk()">
+        Calculate Risk Status
+    </button>
+
+    <div id="result" class="result-box"></div>
+</div>
+
+<script>
+    let answers = {};
+
+    function selectAnswer(question, points, element) {
+        answers[question] = points;
+
+        let siblings = element.parentElement.children;
+        for (let i = 0; i < siblings.length; i++) {
+            siblings[i].classList.remove("selected");
+        }
+        element.classList.add("selected");
+    }
+
+    function calculateRisk() {
+        if (Object.keys(answers).length < 3) {
+            alert("Please answer all questions");
+            return;
+        }
+
+        let totalScore = Object.values(answers).reduce((a, b) => a + b, 0);
+        let resultBox = document.getElementById("result");
+
+        if (totalScore <= 5) {
+            resultBox.innerHTML = `
+                🟢 <b>SAFE INVESTOR</b><br>
+                You prefer stability and lower market risk.<br>
+                <small>Total Score: ${totalScore}</small>
+            `;
+            resultBox.className = "result-box safe";
+        } else {
+            resultBox.innerHTML = `
+                🔴 <b>RISKY INVESTOR</b><br>
+                You are comfortable with volatility and higher risk.<br>
+                <small>Total Score: ${totalScore}</small>
+            `;
+            resultBox.className = "result-box risky";
+        }
+    }
+</script>
+
+</body>
+</html>

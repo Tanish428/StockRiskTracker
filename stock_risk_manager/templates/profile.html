@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile | StockRiskTracker</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo">📈</div>
+            <h2>StockRiskTracker</h2>
+        </div>
+
+       <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}" class="active">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
+            <a href="#" class="logout-btn">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+
+        <div class="header-top">
+            <h1>User Profile</h1>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+
+            <!-- Left -->
+            <div class="profile-left">
+                <div class="avatar-ring">
+                    <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile Image">
+                </div>
+
+                <span class="risk-badge safe">SAFE</span>
+                <!-- change to class="risk-badge risky" if needed -->
+            </div>
+
+            <!-- Right -->
+            <div class="profile-right">
+
+                <div class="info-row">
+                    <span>Username</span>
+                  
+                </div>
+
+                <div class="info-row">
+                    <span>Email</span>
+                   
+                </div>
+
+                <div class="info-row">
+                    <span>Risk Status</span>
+                  
+                </div>
+
+                <div class="quiz-section">
+                    <p>Want to reassess your investment risk?</p>
+                    <a href="{% url 'quiz' %}" class="quiz-btn">Retake Risk Quiz</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

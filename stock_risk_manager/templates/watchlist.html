@@ -31,7 +31,7 @@
                 <div class="profile-section">
                     <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
                     <div class="profile-menu" id="profileMenu">
-                        <a href="#">Profile</a>
+                        <a href="{% url 'profile' %}">Profile</a>
                         <a href="#" class="menu-logout">Logout</a>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                 <h3>Risk Analysis Watchlist</h3>
 
                 <div class="stock-cards">
-                    <div class="stock-card safe">
+                    <div class="stock-card safe" onclick="goToReport('Reliance')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
                             <h4>Reliance</h4>
@@ -50,7 +50,7 @@
                         <p class="status">SAFE</p>
                     </div>
 
-                    <div class="stock-card risky">
+                    <div class="stock-card risky" onclick="goToReport('Adani Power')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
                             <h4>Adani Power</h4>
@@ -59,7 +59,7 @@
                         <p class="status">RISKY</p>
                     </div>
 
-                    <div class="stock-card safe">
+                    <div class="stock-card safe" onclick="goToReport('TCS')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
                             <h4>TCS</h4>
@@ -68,7 +68,7 @@
                         <p class="status">SAFE</p>
                     </div>
 
-                    <div class="stock-card risky">
+                    <div class="stock-card risky" onclick="goToReport('Yes Bank')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/yesbank-logo.png' %}" alt="Yes Bank" class="company-logo">
                             <h4>Yes Bank</h4>
@@ -99,6 +99,16 @@
                 profileMenu.classList.remove('active');
             }
         });
+
+        // Navigate to report page
+        function goToReport(stockName) {
+            window.location.href = '{% url "report" %}?stock=' + encodeURIComponent(stockName);
+        }
+    </script>
+
+</body>
+
+</html>
     </script>
 
 </body>

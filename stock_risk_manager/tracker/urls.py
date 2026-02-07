@@ -6,6 +6,10 @@ urlpatterns = [
     path("tracker/", views.dashboard, name="dashboard"),
     path('watchlist/', views.watchlist, name='watchlist'),
     path('history/', views.history, name='history'),
-    path('dictionary/', views.dictionary, name='dictionary'),   
+    path('dictionary/', views.dictionary, name='dictionary'),  
+    path('report/', views.report, name='report'),
+    path('profile/', views.profile, name='profile'),
+    path('quiz/', views.quiz, name='quiz'),
+    path('register/', views.register, name='register'),
     path("", views.index, name="index"),
 ]

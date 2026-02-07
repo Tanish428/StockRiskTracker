@@ -16,5 +16,17 @@ def history(request):
 def dictionary(request):
     return render(request, 'dictionary.html')
 
+def report(request):
+    return render(request, 'report.html')
+
+def profile(request):
+    return render(request, 'profile.html')
+
+def quiz(request):
+    return render(request, 'quiz.html')
+
+def register(request):
+    return render(request, 'register.html')
+
 def index(request):
     return render(request,'index.html')
