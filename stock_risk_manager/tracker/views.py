@@ -13,5 +13,8 @@ def watchlist(request):
 def history(request):
     return render(request, 'history.html')
 
+def dictionary(request):
+    return render(request, 'dictionary.html')
+
 def index(request):
     return render(request,'index.html')

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Trading Dictionary</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dictionary.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo">📈</div>
+            <h2>StockRiskTracker</h2>
+        </div>
+
+         <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}">History</a>
+            <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
+            <a href="#" class="logout-btn">Logout</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Header -->
+        <div class="header-top">
+            <h1>Stock Trading Dictionary</h1>
+            <div class="profile-section">
+                <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
+                <div class="profile-menu" id="profileMenu">
+                    <a href="#">Profile</a>
+                    <a href="#" class="menu-logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <input type="text" placeholder="Search trading term...">
+        </div>
+
+        <!-- Dictionary Cards -->
+        <div class="dictionary-grid">
+
+            <div class="dictionary-card">
+                <h3>Stock</h3>
+                <p>A stock represents ownership in a company and a claim on part of its assets and earnings.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Share</h3>
+                <p>A single unit of ownership in a company’s stock.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Bull Market</h3>
+                <p>A market condition where prices are rising or expected to rise.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Bear Market</h3>
+                <p>A market condition where prices are falling or expected to fall.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Volatility</h3>
+                <p>The degree of variation in trading prices over a period of time.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Liquidity</h3>
+                <p>The ease with which an asset can be bought or sold without affecting its price.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Market Capitalization</h3>
+                <p>The total value of a company’s outstanding shares.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Portfolio</h3>
+                <p>A collection of financial investments like stocks, bonds, and cash.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Stop Loss</h3>
+                <p>An order placed to sell a stock when it reaches a specific price to limit losses.</p>
+            </div>
+
+            <div class="dictionary-card">
+                <h3>Dividend</h3>
+                <p>A portion of company profits distributed to shareholders.</p>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // Profile menu toggle
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+
+    profileBtn.addEventListener('click', function() {
+        profileMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.profile-section')) {
+            profileMenu.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction History</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/history.css' %}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo">📈</div>
+            <h2>StockRiskTracker</h2>
+        </div>
+
+       <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}" class="active">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
+            <a href="#" class="logout-btn">Logout</a>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        <div class="header-top">
+            <h1>Transaction History</h1>
+            <div class="profile-section">
+                <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
+                <div class="profile-menu" id="profileMenu">
+                    <a href="#">Profile</a>
+                    <a href="#" class="menu-logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-container">
+
+            <div class="history-row">
+                <div class="asset">
+                    <h4>TATA MOTORS</h4>
+                    <span>Jan 12, 2024 • 10:30 AM</span>
+                </div>
+
+                <span class="badge buy">BUY</span>
+
+                <div class="price">₹ 642.50</div>
+
+                <div class="total">
+                    ₹ 12,850
+                    <small>20 Units</small>
+                </div>
+            </div>
+
+            <div class="history-row">
+                <div class="asset">
+                    <h4>ADANI POWER</h4>
+                    <span>Jan 10, 2024 • 02:15 PM</span>
+                </div>
+
+                <span class="badge sell">SELL</span>
+
+                <div class="price">₹ 315.00</div>
+
+                <div class="total profit">
+                    + ₹ 15,750
+                    <small>50 Units</small>
+                </div>
+            </div>
+
+            <div class="history-row">
+                <div class="asset">
+                    <h4>INFOSYS</h4>
+                    <span>Jan 08, 2024 • 11:00 AM</span>
+                </div>
+
+                <span class="badge buy">BUY</span>
+
+                <div class="price">₹ 1,420.00</div>
+
+                <div class="total">
+                    ₹ 14,200
+                    <small>10 Units</small>
+                </div>
+            </div>
+
+            <div class="history-row">
+                <div class="asset">
+                    <h4>HDFC BANK</h4>
+                    <span>Jan 05, 2024 • 09:45 AM</span>
+                </div>
+
+                <span class="badge buy">BUY</span>
+
+                <div class="price">₹ 1,650.00</div>
+
+                <div class="total">
+                    ₹ 8,250
+                    <small>5 Units</small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Profile menu toggle
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+
+    profileBtn.addEventListener('click', function() {
+        profileMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.profile-section')) {
+            profileMenu.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>

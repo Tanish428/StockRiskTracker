@@ -20,8 +20,8 @@
             </div>
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="#" class="active">Watchlist</a>
-            <a href="#">History</a>
-            <a href="#">Dictionary</a>
+            <a href="{% url 'history' %}">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
             <a href="#" class="logout-btn">Logout</a>
         </div>
 
@@ -61,7 +61,7 @@
 
                     <div class="stock-card safe">
                         <div class="card-header">
-                            <img src="{% static 'image/tcs-logo.png' %}" alt="TCS" class="company-logo">
+                            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
                             <h4>TCS</h4>
                         </div>
                         <p class="price">₹ 3,340.00</p>
