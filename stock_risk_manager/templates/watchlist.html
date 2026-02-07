@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>StockRiskTracker</title>
+    <title>Watchlist | StockRiskTracker</title>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/watchlist.css' %}">
 </head>
 
 <body>
@@ -18,16 +18,16 @@
                 <div class="logo">📈</div>
                 <h2>StockRiskTracker</h2>
             </div>
-            <a href="#">Dashboard</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'history' %}">History</a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="#" class="active">Watchlist</a>
+            <a href="#">History</a>
             <a href="#">Dictionary</a>
             <a href="#" class="logout-btn">Logout</a>
         </div>
 
         <div class="main">
             <div class="header-top">
-                <h1>Dashboard</h1>
+                <h1>My Watchlist</h1>
                 <div class="profile-section">
                     <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
                     <div class="profile-menu" id="profileMenu">
@@ -37,29 +37,10 @@
                 </div>
             </div>
 
-            <div class="top-info">
-                <div class="wallet-box">
-                    <div class="wallet-label">Wallet Balance</div>
-                    <div class="wallet-amount">{% if wallet_balance %}₹ {{ wallet_balance }}{% else %}₹ 0.00{% endif %}</div>
-                </div>
-
-                <div class="user-risk-box">
-                    <div class="user-risk-center">
-                        <div class="user-risk-dot {% if user_risk == 'SAFE' %}safe{% else %}risky{% endif %}"></div>
-                        <div class="user-risk-info">
-                            <h4>Risk Status</h4>
-                            <div class="user-risk-status {% if user_risk == 'SAFE' %}safe{% else %}risky{% endif %}">
-                                {% if user_risk %}{{ user_risk }}{% else %}--{% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="watchlist">
-                <h3>Stocks</h3>
+                <h3>Risk Analysis Watchlist</h3>
 
-                <div class="stock-cards-horizontal">
+                <div class="stock-cards">
                     <div class="stock-card safe">
                         <div class="card-header">
                             <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
@@ -85,6 +66,15 @@
                         </div>
                         <p class="price">₹ 3,340.00</p>
                         <p class="status">SAFE</p>
+                    </div>
+
+                    <div class="stock-card risky">
+                        <div class="card-header">
+                            <img src="{% static 'image/yesbank-logo.png' %}" alt="Yes Bank" class="company-logo">
+                            <h4>Yes Bank</h4>
+                        </div>
+                        <p class="price">₹ 18.25</p>
+                        <p class="status">RISKY</p>
                     </div>
                 </div>
 
