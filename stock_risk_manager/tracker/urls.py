@@ -3,6 +3,9 @@ from django.urls import path
 from . import views
 from .views import dashboard
 urlpatterns = [
+
+    path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
     path("tracker/", views.dashboard, name="dashboard"),
     path('watchlist/', views.watchlist, name='watchlist'),
     path('history/', views.history, name='history'),
@@ -10,6 +13,5 @@ urlpatterns = [
     path('report/', views.report, name='report'),
     path('profile/', views.profile, name='profile'),
     path('quiz/', views.quiz, name='quiz'),
-    path('register/', views.register, name='register'),
     path("", views.index, name="index"),
 ]

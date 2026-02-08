@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | StockRiskTracker</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+        <h1>Welcome Back 👋</h1>
+        <p class="subtitle">Login to continue to StockRiskTracker</p>
+
+        <form>
+
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" placeholder="Enter your username">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+
+        </form>
+
+        <p class="signup-text">
+            New user?
+            <a href="{% url 'register' %}">Create an account</a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>
