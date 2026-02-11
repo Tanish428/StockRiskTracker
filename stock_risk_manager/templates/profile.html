@@ -7,13 +7,18 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <style>
+        /* Add these small helpers for dynamic colors */
+        .safe-text { color: #2ecc71; }
+        .risky-text { color: #e74c3c; }
+        .neutral-text { color: #95a5a6; }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo-section">
             <div class="logo">📈</div>
@@ -21,48 +26,58 @@
         </div>
 
        <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'history' %}" class="active">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="#" class="logout-btn">Logout</a>
+       <a href="{% url 'watchlist' %}">Watchlist</a>
+       <a href="{% url 'history' %}">History</a>
+       <a href="{% url 'dictionary' %}">Dictionary</a>
+       <a href="#" class="logout-btn">Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div class="main">
 
         <div class="header-top">
             <h1>User Profile</h1>
         </div>
 
-        <!-- Profile Card -->
         <div class="profile-card">
 
-            <!-- Left -->
             <div class="profile-left">
                 <div class="avatar-ring">
                     <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile Image">
                 </div>
 
-                <span class="risk-badge safe">SAFE</span>
-                <!-- change to class="risk-badge risky" if needed -->
+                <span class="risk-badge {% if profile.risk_category == 'Safe' %}safe{% else %}risky{% endif %}">
+                    {{ profile.risk_category|default:"Neutral" }}
+                </span>
             </div>
 
-            <!-- Right -->
             <div class="profile-right">
 
                 <div class="info-row">
                     <span>Username</span>
-                  
+                    <strong>{{ user.username }}</strong>
                 </div>
 
                 <div class="info-row">
                     <span>Email</span>
-                   
+                    <strong>
+                        {% if user.email %}
+                            {{ user.email }}
+                        {% else %}
+                            <span style="color: #ccc;">No email linked</span>
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Wallet Balance</span>
+                    <strong>₹ {{ profile.wallet_balance }}</strong>
                 </div>
 
                 <div class="info-row">
                     <span>Risk Status</span>
-                  
+                    <strong class="{% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
+                        {{ profile.risk_category|default:"Neutral" }}
+                    </strong>
                 </div>
 
                 <div class="quiz-section">

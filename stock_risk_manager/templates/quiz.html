@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Risk Profile Quiz</title>
-     {% load static %}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
 </head>
 <body>
@@ -11,103 +11,96 @@
 <div class="quiz-container">
     <h1>📊 Risk Profile Quiz</h1>
     <p class="quiz-subtitle">
-        Answer these 3 questions to know whether you are a Safe or Risky investor
+        Answer these 3 questions to set your profile.
     </p>
 
-    <!-- Question 1 -->
     <div class="quiz-card">
-        <h3>1️⃣ If your stock investment drops by <b>20%</b> suddenly, what will you do?</h3>
+        <h3>1️⃣ If your stock drops 20%, what do you do?</h3>
         <div class="options">
-            <div class="option" onclick="selectAnswer(1,1,this)">
-                😰 Sell immediately
-            </div>
-            <div class="option" onclick="selectAnswer(1,2,this)">
-                😐 Hold and wait
-            </div>
-            <div class="option" onclick="selectAnswer(1,3,this)">
-                🚀 Buy more at lower price
-            </div>
+            <button type="button" class="option-btn" onclick="selectOption(1, 1, this)">Sell immediately (1 pt)</button>
+            <button type="button" class="option-btn" onclick="selectOption(1, 2, this)">Hold and wait (2 pts)</button>
+            <button type="button" class="option-btn" onclick="selectOption(1, 3, this)">Buy more (3 pts)</button>
         </div>
     </div>
 
-    <!-- Question 2 -->
     <div class="quiz-card">
-        <h3>2️⃣ How long do you plan to keep your money invested?</h3>
+        <h3>2️⃣ How long will you invest?</h3>
         <div class="options">
-            <div class="option" onclick="selectAnswer(2,1,this)">
-                ⏳ Less than 1 year
-            </div>
-            <div class="option" onclick="selectAnswer(2,2,this)">
-                📅 1–3 years
-            </div>
-            <div class="option" onclick="selectAnswer(2,3,this)">
-                🏗️ More than 3 years
-            </div>
+            <button type="button" class="option-btn" onclick="selectOption(2, 1, this)">Less than 1 year (1 pt)</button>
+            <button type="button" class="option-btn" onclick="selectOption(2, 2, this)">1–3 years (2 pts)</button>
+            <button type="button" class="option-btn" onclick="selectOption(2, 3, this)">3+ years (3 pts)</button>
         </div>
     </div>
 
-    <!-- Question 3 -->
     <div class="quiz-card">
-        <h3>3️⃣ How do you feel about daily stock price ups and downs?</h3>
+        <h3>3️⃣ Daily price changes make me feel:</h3>
         <div class="options">
-            <div class="option" onclick="selectAnswer(3,1,this)">
-                😟 I feel stressed
-            </div>
-            <div class="option" onclick="selectAnswer(3,2,this)">
-                🙂 I’m okay with some movement
-            </div>
-            <div class="option" onclick="selectAnswer(3,3,this)">
-                📈 I see it as opportunity
-            </div>
+            <button type="button" class="option-btn" onclick="selectOption(3, 1, this)">Stressed (1 pt)</button>
+            <button type="button" class="option-btn" onclick="selectOption(3, 2, this)">Okay (2 pts)</button>
+            <button type="button" class="option-btn" onclick="selectOption(3, 3, this)">Excited (3 pts)</button>
         </div>
     </div>
 
-    <button class="submit-btn" onclick="calculateRisk()">
-        Calculate Risk Status
-    </button>
+    <form method="POST" id="quizForm">
+        {% csrf_token %}
+        <input type="hidden" name="risk_score" id="riskScoreInput">
+        <input type="hidden" name="risk_category" id="riskCategoryInput">
+        
+        <button type="button" class="submit-btn" onclick="calculateAndSubmit()">
+            Submit Results
+        </button>
+    </form>
 
-    <div id="result" class="result-box"></div>
 </div>
 
 <script>
-    let answers = {};
+    let scores = {1: 0, 2: 0, 3: 0};
 
-    function selectAnswer(question, points, element) {
-        answers[question] = points;
+    function selectOption(qIndex, points, btn) {
+        // Save score
+        scores[qIndex] = points;
 
-        let siblings = element.parentElement.children;
+        // Visual feedback (highlight selected)
+        let parent = btn.parentElement;
+        let siblings = parent.getElementsByClassName('option-btn');
         for (let i = 0; i < siblings.length; i++) {
-            siblings[i].classList.remove("selected");
+            siblings[i].classList.remove('selected');
         }
-        element.classList.add("selected");
+        btn.classList.add('selected');
     }
 
-    function calculateRisk() {
-        if (Object.keys(answers).length < 3) {
-            alert("Please answer all questions");
+    function calculateAndSubmit() {
+        // Check if all answered
+        if (scores[1] === 0 || scores[2] === 0 || scores[3] === 0) {
+            alert("Please answer all questions!");
             return;
         }
 
-        let totalScore = Object.values(answers).reduce((a, b) => a + b, 0);
-        let resultBox = document.getElementById("result");
+        let totalScore = scores[1] + scores[2] + scores[3];
+        let category = totalScore <= 5 ? "Safe" : "Risky";
 
-        if (totalScore <= 5) {
-            resultBox.innerHTML = `
-                🟢 <b>SAFE INVESTOR</b><br>
-                You prefer stability and lower market risk.<br>
-                <small>Total Score: ${totalScore}</small>
-            `;
-            resultBox.className = "result-box safe";
-        } else {
-            resultBox.innerHTML = `
-                🔴 <b>RISKY INVESTOR</b><br>
-                You are comfortable with volatility and higher risk.<br>
-                <small>Total Score: ${totalScore}</small>
-            `;
-            resultBox.className = "result-box risky";
-        }
+        // Fill the hidden inputs
+        document.getElementById('riskScoreInput').value = totalScore;
+        document.getElementById('riskCategoryInput').value = category;
+
+        // Submit the form to Django
+        document.getElementById('quizForm').submit();
     }
 </script>
+
+<style>
+    /* Minimal CSS for the buttons */
+    .option-btn {
+        display: block; width: 100%; padding: 10px; margin: 5px 0;
+        border: 1px solid #ccc; background: white; cursor: pointer;
+    }
+    .option-btn.selected {
+        background-color: #3498db; color: white; border-color: #2980b9;
+    }
+    .submit-btn {
+        margin-top: 20px; padding: 12px 24px; background: #2ecc71; color: white; border: none; font-size: 16px; cursor: pointer;
+    }
+</style>
 
 </body>
 </html>

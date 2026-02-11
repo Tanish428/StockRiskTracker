@@ -1,47 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login | StockRiskTracker</title>
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: red; text-align: center;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-</head>
-
-<body>
-
-<div class="login-wrapper">
-
-    <div class="login-card">
-
-        <h1>Welcome Back 👋</h1>
-        <p class="subtitle">Login to continue to StockRiskTracker</p>
-
-        <form>
-
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" placeholder="Enter your username">
-            </div>
-
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" placeholder="Enter your password">
-            </div>
-
-            <button type="submit" class="login-btn">Login</button>
-
-        </form>
-
-        <p class="signup-text">
-            New user?
-            <a href="{% url 'register' %}">Create an account</a>
-        </p>
-
+<form method="POST">
+    {% csrf_token %}  <div class="input-group">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter your username" required>
     </div>
 
-</div>
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required>
+    </div>
 
-</body>
-</html>
+    <button type="submit" class="login-btn">Login</button>
+
+</form>
