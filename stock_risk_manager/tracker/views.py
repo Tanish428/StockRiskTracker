@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
@@ -21,6 +21,12 @@ def login(request):
             messages.error(request, "Invalid username or password")
             
     return render(request, 'login.html')
+
+# --- LOGOUT VIEW ---
+def logout(request):
+    auth_logout(request)
+    messages.success(request, "You have been logged out successfully!")
+    return redirect('login')
 
 # --- 2. PLACEHOLDER VIEWS (So urls.py doesn't crash) ---
 

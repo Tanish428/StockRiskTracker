@@ -22,7 +22,7 @@
             <a href="{% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="#" class="logout-btn">Logout</a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
         </div>
 
         <div class="main">
@@ -32,7 +32,7 @@
                     <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
                     <div class="profile-menu" id="profileMenu">
                         <a href="{% url 'profile' %}">Profile</a>
-                        <a href="#" class="menu-logout">Logout</a>
+                        <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
             <div class="top-info">
                 <div class="wallet-box">
                     <div class="wallet-label">Wallet Balance</div>
-                    <div class="wallet-amount">{% if wallet_balance %}₹ {{ wallet_balance }}{% else %}₹ 0.00{% endif %}</div>
+                    <div class="wallet-amount">{% if wallet_balance %}₹ {{ wallet_balance }}{% else %}₹ 10000.00{% endif %}</div>
                 </div>
 
                 <div class="user-risk-box">

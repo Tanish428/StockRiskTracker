@@ -22,7 +22,7 @@
             <a href="{% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'history' %}" class="active">History</a>
             <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="#" class="logout-btn">Logout</a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
     </div>
 
     <!-- Main -->
@@ -34,7 +34,7 @@
                 <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
                 <div class="profile-menu" id="profileMenu">
                     <a href="{% url 'profile' %}">Profile</a>
-                    <a href="#" class="menu-logout">Logout</a>
+                    <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
                 </div>
             </div>
         </div>
