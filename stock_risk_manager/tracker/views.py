@@ -35,7 +35,14 @@ def index(request):
 
 @login_required  # Protect this so only logged-in users can see it
 def dashboard(request):
-    return render(request, "index.html")
+    # Provide the user's profile, wallet balance and risk category to the template
+    user_profile, created = Profile.objects.get_or_create(user=request.user)
+    context = {
+        'profile': user_profile,
+        'wallet_balance': user_profile.wallet_balance,
+        'user_risk': (user_profile.risk_category or '').upper()
+    }
+    return render(request, "index.html", context)
 
 from django.contrib.auth.models import User
 from .models import Profile

@@ -44,8 +44,11 @@
                 </div>
 
                 <div class="user-risk-box">
+                    <!-- Risk logo shown based on user's risk category -->
+                    <div class="risk-logo-wrap">
+                        <img src="{% if user_risk == 'SAFE' %}{% static 'image/Safe-logo.png' %}{% elif user_risk == 'RISKY' %}{% static 'image/Risky-logo.png' %}{% else %}{% static 'image/profile.jpg' %}{% endif %}" alt="Risk Logo" class="risk-logo">
+                    </div>
                     <div class="user-risk-center">
-                        <div class="user-risk-dot {% if user_risk == 'SAFE' %}safe{% else %}risky{% endif %}"></div>
                         <div class="user-risk-info">
                             <h4>Risk Status</h4>
                             <div class="user-risk-status {% if user_risk == 'SAFE' %}safe{% else %}risky{% endif %}">
