@@ -1,3 +1,5 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
 {% if messages %}
     {% for message in messages %}
         <p style="color: red; text-align: center;">{{ message }}</p>

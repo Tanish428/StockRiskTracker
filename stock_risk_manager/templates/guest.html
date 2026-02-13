@@ -30,10 +30,14 @@
         <div class="main">
             <div class="header-top">
                 <h1>Welcome — Guest</h1>
-                <div class="profile-section">
-                    <!-- Guests see a login avatar that links to login -->
-                    <a href="{% url 'login' %}"><img src="{% static 'image/profile.jpg' %}" alt="Login" class="profile-avatar"></a>
-                    <!-- Visible login button next to avatar for guests -->
+                <div class="profile-section" style="position: relative;">
+                    <!-- Guests see an avatar that opens a small menu with Login / Sign Up -->
+                    <a href="#" id="guestProfileAvatar" onclick="toggleProfileMenu(event)"><img src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar"></a>
+
+                    <div id="guestProfileMenu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #ddd; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-radius:6px; z-index:1000; min-width:140px; text-align:center;">
+                        <a class="guest-profile-btn" href="{% url 'login' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#0b5ed7;color:#fff;border-radius:4px;text-decoration:none;">Login</a>
+                        <a class="guest-profile-btn" href="{% url 'register' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#6c757d;color:#fff;border-radius:4px;text-decoration:none;">Sign Up</a>
+                    </div>
                 </div>
             </div>
 
@@ -82,6 +86,24 @@
             const loginUrl = '{% url "login" %}';
             window.location.href = loginUrl + '?next=' + encodeURIComponent(path);
         }
+        
+        // Toggle small profile menu for guests (Login / Sign Up)
+        function toggleProfileMenu(e) {
+            e.preventDefault();
+            const menu = document.getElementById('guestProfileMenu');
+            if (!menu) return;
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Hide the profile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('guestProfileMenu');
+            const avatar = document.getElementById('guestProfileAvatar');
+            if (!menu || !avatar) return;
+            if (menu.style.display === 'block' && !menu.contains(event.target) && !avatar.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
     </script>
 
 </body>

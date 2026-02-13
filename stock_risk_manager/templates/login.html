@@ -1,3 +1,6 @@
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% if messages %}
     {% for message in messages %}
         <p style="color: red; text-align: center;">{{ message }}</p>
@@ -18,3 +21,5 @@
     <button type="submit" class="login-btn">Login</button>
 
 </form>
+
+<p style="text-align:center; margin-top:12px;">New user? <a href="{% url 'register' %}">Register here</a></p>
