@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Investment Diary | StockRiskTracker</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo">📈</div>
+            <h2>StockRiskTracker</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'watchlist' %}">Watchlist</a>
+        <a href="{% url 'investment_diary' %}">Investment Diary</a>
+        <a href="{% url 'history' %}">History</a>
+        <a href="{% url 'dictionary' %}">Dictionary</a>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="main">
+
+        <div class="header-top">
+            <h1>Investment Diary</h1>
+        </div>
+
+        <!-- Add Note -->
+        <div class="card">
+            <h2>Add New Note</h2>
+
+            <form method="POST" action="{% url 'add_note' %}">
+                {% csrf_token %}
+
+                <input type="text" name="title" placeholder="Note Title" required>
+                <textarea name="content" placeholder="Write your thoughts..." required></textarea>
+
+                <button type="submit" class="buy-btn">Save Note</button>
+            </form>
+        </div>
+
+        <!-- Notes List -->
+        <div class="card">
+            <h2>Your Notes</h2>
+
+            {% for note in notes %}
+                <div class="note">
+                    <h3>{{ note.title }}</h3>
+                    <p>{{ note.content }}</p>
+
+                    <div class="note-actions">
+                        <a href="{% url 'edit_note' note.id %}" class="edit-btn">Edit</a>
+                        <a href="{% url 'delete_note' note.id %}" class="sell-btn">Delete</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No notes yet.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
