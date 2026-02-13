@@ -1,0 +1,462 @@
+/* Investment Diary Styles */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fb;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    background: #f4f7fb;
+}
+
+/* --------------------
+   Sidebar (Navigation)
+--------------------- */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #1f3c88, #12245c);
+    color: #fff;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 12px;
+}
+
+.logo {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.sidebar h2 {
+    margin: 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+.sidebar a {
+    display: block;
+    text-decoration: none;
+    color: #dbe3ff;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.logout-btn {
+    margin-top: auto;
+    background-color: #d32f2f;
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background-color: #b71c1c;
+    color: #ffffff;
+}
+
+.main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    background: #f4f7fb;
+}
+
+.header-top {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #667eea;
+}
+
+.header-top h1 {
+    color: #1f3c88;
+    font-size: 26px;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* Add Note Section */
+.add-note-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border: 2px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.add-note-card:hover {
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+}
+
+.add-note-card h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.add-note-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.add-note-card input[type="text"],
+.add-note-card textarea {
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.add-note-card input[type="text"]:focus,
+.add-note-card textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+}
+
+.add-note-card textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.add-note-card button {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.add-note-card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.add-note-card button:active {
+    transform: translateY(0);
+}
+
+/* Notes List Section */
+.notes-list-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.notes-list-card h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.notes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.note {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.note::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.note:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+}
+
+.note h3 {
+    color: #2c3e50;
+    font-size: 18px;
+    margin: 12px 0 10px 0;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.note-date {
+    color: #7f8c8d;
+    font-size: 12px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.note-date::before {
+    content: '📅';
+    font-size: 14px;
+}
+
+.note-time {
+    color: #95a5a6;
+    font-size: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.note-time::before {
+    content: '⏰';
+    font-size: 14px;
+}
+
+.note p {
+    color: #34495e;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 12px 0;
+    word-break: break-word;
+    max-height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.note-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.note-actions a {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sell-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.sell-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #7f8c8d;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+.empty-state::before {
+    content: '📝';
+    display: block;
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .notes-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: auto;
+        padding: 15px;
+        flex-wrap: wrap;
+    }
+
+    .logo-section {
+        margin: 0;
+        border: none;
+        flex: 1;
+    }
+
+    .sidebar a {
+        display: none;
+    }
+
+    .main {
+        padding: 20px;
+    }
+
+    .header-top h1 {
+        font-size: 24px;
+    }
+
+    .notes-container {
+        grid-template-columns: 1fr;
+    }
+
+    .add-note-card,
+    .notes-list-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main {
+        padding: 15px;
+    }
+
+    .header-top h1 {
+        font-size: 20px;
+    }
+
+    .add-note-card,
+    .notes-list-card {
+        padding: 15px;
+    }
+
+    .note {
+        padding: 15px;
+    }
+
+    .note-actions {
+        flex-direction: column;
+    }
+
+    .note-actions a {
+        width: 100%;
+    }
+}
+
+/* Card Class for backwards compatibility */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.buy-btn {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.buy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}

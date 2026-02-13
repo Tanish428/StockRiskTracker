@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Diary | StockRiskTracker</title>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/investment_diary.css' %}">
 </head>
 
 <body>
@@ -20,7 +21,7 @@
 
         <a href="{% url 'dashboard' %}">Dashboard</a>
         <a href="{% url 'watchlist' %}">Watchlist</a>
-        <a href="{% url 'investment_diary' %}">Investment Diary</a>
+        <a href="{% url 'investment_diary' %}" class="active">Investment Diary</a>
         <a href="{% url 'history' %}">History</a>
         <a href="{% url 'dictionary' %}">Dictionary</a>
         <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
@@ -29,40 +30,48 @@
     <div class="main">
 
         <div class="header-top">
-            <h1>Investment Diary</h1>
+            <h1>📔 Investment Diary</h1>
         </div>
 
         <!-- Add Note -->
-        <div class="card">
-            <h2>Add New Note</h2>
+        <div class="add-note-card">
+            <h2>✍️ Add New Note</h2>
 
             <form method="POST" action="{% url 'add_note' %}">
                 {% csrf_token %}
 
-                <input type="text" name="title" placeholder="Note Title" required>
-                <textarea name="content" placeholder="Write your thoughts..." required></textarea>
+                <input type="text" name="title" placeholder="Enter note title..." required>
+                <textarea name="content" placeholder="Write your investment thoughts and observations..."></textarea>
 
-                <button type="submit" class="buy-btn">Save Note</button>
+                <button type="submit">💾 Save Note</button>
             </form>
         </div>
 
         <!-- Notes List -->
-        <div class="card">
-            <h2>Your Notes</h2>
+        <div class="notes-list-card">
+            <h2>📚 Your Notes</h2>
 
-            {% for note in notes %}
-                <div class="note">
-                    <h3>{{ note.title }}</h3>
-                    <p>{{ note.content }}</p>
+            {% if notes %}
+                <div class="notes-container">
+                    {% for note in notes %}
+                        <div class="note">
+                            <h3>{{ note.title }}</h3>
+                            <div class="note-date">{{ note.created_at|date:"d M, Y" }}</div>
+                            <div class="note-time">{{ note.created_at|time:"H:i" }}</div>
+                            <p>{{ note.content }}</p>
 
-                    <div class="note-actions">
-                        <a href="{% url 'edit_note' note.id %}" class="edit-btn">Edit</a>
-                        <a href="{% url 'delete_note' note.id %}" class="sell-btn">Delete</a>
-                    </div>
+                            <div class="note-actions">
+                                <a href="{% url 'edit_note' note.id %}" class="edit-btn">✏️ Edit</a>
+                                <a href="{% url 'delete_note' note.id %}" class="sell-btn">🗑️ Delete</a>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <p>No notes yet.</p>
-            {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No notes yet. Start by adding your first investment thought!</p>
+                </div>
+            {% endif %}
         </div>
 
     </div>
