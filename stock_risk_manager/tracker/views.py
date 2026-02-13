@@ -33,8 +33,11 @@ def logout(request):
 def index(request):
     return render(request, 'index.html')
 
-@login_required  # Protect this so only logged-in users can see it
 def dashboard(request):
+    # If user is not authenticated, send them to guest homepage
+    if not request.user.is_authenticated:
+        return redirect('guest')
+
     # Provide the user's profile, wallet balance and risk category to the template
     user_profile, created = Profile.objects.get_or_create(user=request.user)
     context = {
@@ -123,3 +126,8 @@ def quiz(request):
         return redirect('dashboard') # Redirect to Dashboard (Logic: They are already logged in)
 
     return render(request, 'quiz.html')
+
+
+def guest(request):
+    """Render the public guest homepage (guest.html)."""
+    return render(request, 'guest.html')

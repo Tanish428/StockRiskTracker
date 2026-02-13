@@ -17,11 +17,19 @@
             <h2>StockRiskTracker</h2>
         </div>
 
-         <a href="{% url 'dashboard' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% else %}
+            <a href="{% url 'guest' %}">Home</a>
+            <a href="{% url 'login' %}?next={% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'login' %}?next={% url 'history' %}">History</a>
+            <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
+            <a href="{% url 'login' %}" class="logout-btn">Login</a>
+        {% endif %}
     </aside>
 
     <!-- Main Content -->
@@ -30,6 +38,7 @@
         <!-- Header -->
         <div class="header-top">
             <h1>Stock Trading Dictionary</h1>
+            {% if user.is_authenticated %}
             <div class="profile-section">
                 <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
                 <div class="profile-menu" id="profileMenu">
@@ -37,6 +46,11 @@
                     <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
                 </div>
             </div>
+            {% else %}
+            <div class="profile-section">
+                <a href="{% url 'login' %}?next={% url 'profile' %}"><img src="{% static 'image/profile.jpg' %}" alt="Login" class="profile-avatar"></a>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Search Box -->
@@ -103,20 +117,21 @@
 </div>
 
 <script>
-    // Profile menu toggle
+    // Profile menu toggle (only if elements exist)
     const profileBtn = document.getElementById('profileBtn');
     const profileMenu = document.getElementById('profileMenu');
+    if (profileBtn && profileMenu) {
+        profileBtn.addEventListener('click', function() {
+            profileMenu.classList.toggle('active');
+        });
 
-    profileBtn.addEventListener('click', function() {
-        profileMenu.classList.toggle('active');
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.profile-section')) {
-            profileMenu.classList.remove('active');
-        }
-    });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-section')) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    }
 </script>
 
 </body>

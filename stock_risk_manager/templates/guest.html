@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>StockRiskTracker - Guest</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">📈</div>
+                <h2>StockRiskTracker</h2>
+            </div>
+            <a href="/" class="active">Home</a>
+            <!-- Protected pages redirect guests to login -->
+            <a href="{% url 'login' %}?next={% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'login' %}?next={% url 'history' %}">History</a>
+            <!-- Dictionary is public (top-level for guests) -->
+            <a href="/dictionary">Dictionary</a>
+            <a href="{% url 'login' %}" class="logout-btn">Login</a>
+        </div>
+
+        <div class="main">
+            <div class="header-top">
+                <h1>Welcome — Guest</h1>
+                <div class="profile-section">
+                    <!-- Guests see a login avatar that links to login -->
+                    <a href="{% url 'login' %}"><img src="{% static 'image/profile.jpg' %}" alt="Login" class="profile-avatar"></a>
+                    <!-- Visible login button next to avatar for guests -->
+                </div>
+            </div>
+
+
+            <div class="watchlist">
+                <h3>Stocks (Preview)</h3>
+
+                <div class="stock-cards-horizontal">
+                    <div class="stock-card safe" onclick="guestRedirect('/report?stock=Reliance')" style="cursor: pointer;">
+                        <div class="card-header">
+                            <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
+                            <h4>Reliance</h4>
+                        </div>
+                        <p class="price">₹ 2,456.80</p>
+                        <p class="status">SAFE</p>
+                    </div>
+
+                    <div class="stock-card risky" onclick="guestRedirect('/report?stock=Adani%20Power')" style="cursor: pointer;">
+                        <div class="card-header">
+                            <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
+                            <h4>Adani Power</h4>
+                        </div>
+                        <p class="price">₹ 312.40</p>
+                        <p class="status">RISKY</p>
+                    </div>
+
+                    <div class="stock-card safe" onclick="guestRedirect('/report?stock=TCS')" style="cursor: pointer;">
+                        <div class="card-header">
+                            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
+                            <h4>TCS</h4>
+                        </div>
+                        <p class="price">₹ 3,340.00</p>
+                        <p class="status">SAFE</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Guests: redirect protected actions to login with next param
+        function guestRedirect(path) {
+            const loginUrl = '{% url "login" %}';
+            window.location.href = loginUrl + '?next=' + encodeURIComponent(path);
+        }
+    </script>
+
+</body>
+
+</html>
