@@ -3,10 +3,52 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>StockRiskTracker</title>
+    <title>Dashboard | StockRiskTracker</title>
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <style>
+        /* Specific Styles for the Search Bar */
+        .search-container {
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: #1f3c88;
+            outline: none;
+        }
+        .search-btn {
+            padding: 12px 25px;
+            background-color: #1f3c88;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .search-btn:hover {
+            background-color: #162a60;
+        }
+        /* Dynamic Text Colors */
+        .safe-text { color: #2ecc71; }
+        .risky-text { color: #e74c3c; }
+        .neutral-text { color: #95a5a6; }
+    </style>
 </head>
 
 <body>
@@ -27,7 +69,23 @@
         </div>
 
         <div class="main">
+            
             <div class="header-top">
+                {% if messages %}
+                <div class="messages-container" style="margin-bottom: 20px;">
+                {% for message in messages %}
+                        <div style="
+                            padding: 15px; 
+                            border-radius: 8px; 
+                            color: white; 
+                            font-weight: bold; 
+                            background-color: {% if message.tags == 'error' %}#e74c3c{% else %}#2ecc71{% endif %};
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
                 <h1>Dashboard</h1>
                 <div class="profile-section">
                     <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
@@ -38,22 +96,37 @@
                 </div>
             </div>
 
+            <div class="search-container">
+                <div style="flex-grow: 1;">
+                    <h3 style="margin-bottom: 10px; color: #333;">Find a Stock</h3>
+                    <form action="{% url 'report' %}" method="GET" style="display: flex; gap: 10px;">
+                        <input 
+                            type="text" 
+                            name="ticker" 
+                            class="search-input" 
+                            placeholder="Enter symbol (e.g. RELIANCE.NS, AAPL, TATAMOTORS.NS)..." 
+                            required
+                        >
+                        <button type="submit" class="search-btn">Search & Analyze</button>
+                    </form>
+                </div>
+            </div>
+
             <div class="top-info">
                 <div class="wallet-box">
                     <div class="wallet-label">Wallet Balance</div>
-                    <div class="wallet-amount">{% if wallet_balance %}₹ {{ wallet_balance }}{% else %}₹ 10000.00{% endif %}</div>
+                    <div class="wallet-amount">₹ {{ profile.wallet_balance }}</div>
                 </div>
 
                 <div class="user-risk-box">
-                    <!-- Risk logo shown based on user's risk category -->
                     <div class="risk-logo-wrap">
-                        <img src="{% if user_risk == 'SAFE' %}{% static 'image/Safe-logo.png' %}{% elif user_risk == 'RISKY' %}{% static 'image/Risky-logo.png' %}{% else %}{% static 'image/profile.jpg' %}{% endif %}" alt="Risk Logo" class="risk-logo">
+                        <img src="{% if profile.risk_category == 'Safe' %}{% static 'image/Safe-logo.png' %}{% elif profile.risk_category == 'Risky' %}{% static 'image/Risky-logo.png' %}{% else %}{% static 'image/profile.jpg' %}{% endif %}" alt="Risk Logo" class="risk-logo">
                     </div>
                     <div class="user-risk-center">
                         <div class="user-risk-info">
                             <h4>Risk Status</h4>
-                            <div class="user-risk-status {% if user_risk == 'SAFE' %}safe{% else %}risky{% endif %}">
-                                {% if user_risk %}{{ user_risk }}{% else %}--{% endif %}
+                            <div class="user-risk-status {% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
+                                {{ profile.risk_category|default:"Neutral" }} Investor
                             </div>
                         </div>
                     </div>
@@ -61,10 +134,10 @@
             </div>
 
             <div class="watchlist">
-                <h3>Stocks</h3>
+                <h3>Popular Stocks</h3>
 
                 <div class="stock-cards-horizontal">
-                    <div class="stock-card safe" onclick="goToReport('Reliance')" style="cursor: pointer;">
+                    <div class="stock-card safe" onclick="goToReport('RELIANCE.NS')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
                             <h4>Reliance</h4>
@@ -73,7 +146,7 @@
                         <p class="status">SAFE</p>
                     </div>
 
-                    <div class="stock-card risky" onclick="goToReport('Adani Power')" style="cursor: pointer;">
+                    <div class="stock-card risky" onclick="goToReport('ADANIPOWER.NS')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
                             <h4>Adani Power</h4>
@@ -82,7 +155,7 @@
                         <p class="status">RISKY</p>
                     </div>
 
-                    <div class="stock-card safe" onclick="goToReport('TCS')" style="cursor: pointer;">
+                    <div class="stock-card safe" onclick="goToReport('TCS.NS')" style="cursor: pointer;">
                         <div class="card-header">
                             <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
                             <h4>TCS</h4>
@@ -103,23 +176,25 @@
         const profileBtn = document.getElementById('profileBtn');
         const profileMenu = document.getElementById('profileMenu');
 
-        profileBtn.addEventListener('click', function() {
-            profileMenu.classList.toggle('active');
-        });
+        if(profileBtn) {
+            profileBtn.addEventListener('click', function() {
+                profileMenu.classList.toggle('active');
+            });
+        }
 
         // Close menu when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.profile-section')) {
-                profileMenu.classList.remove('active');
+                if(profileMenu) profileMenu.classList.remove('active');
             }
         });
 
-        // Navigate to report page
-        function goToReport(stockName) {
-            window.location.href = '{% url "report" %}?stock=' + encodeURIComponent(stockName);
+        // Navigate to report page with the correct API query param
+        function goToReport(tickerSymbol) {
+            // CHANGED: Uses 'ticker=' to match your views.py logic
+            window.location.href = '{% url "report" %}?ticker=' + encodeURIComponent(tickerSymbol);
         }
     </script>
 
 </body>
-
 </html>

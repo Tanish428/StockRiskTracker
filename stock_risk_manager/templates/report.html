@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Reliance Stock Report | StockRiskTracker</title>
-
+    <title>{{ stock.name }} Report</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/report.css' %}">
@@ -13,183 +12,137 @@
 <body>
 
 <div class="container">
-
-    <!-- Sidebar -->
     <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-
-       <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}" class="active">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        <div class="logo-section"><div class="logo">📈</div><h2>StockRiskTracker</h2></div>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'watchlist' %}">Watchlist</a>
+        <a href="{% url 'history' %}">History</a>
+        <a href="#" class="active">Report</a>
     </div>
 
-    <!-- Main -->
     <div class="main">
-
-        <!-- Header -->
-            <div class="header-top">
+        <div class="header-top">
             <div class="header-content">
-                <img id="companyLogo" src="{% static 'image/reliance-logo.png' %}" alt="Company" class="company-logo">
-                <h1 id="companyName">Reliance Industries Ltd</h1>
+                <div class="company-logo" style="display:flex;align-items:center;justify-content:center;background:#eee;font-weight:bold;font-size:24px;">
+                    {{ stock.symbol|slice:":1" }}
+                </div>
+                <div>
+                    <h1>{{ stock.name }}</h1>
+                    <span style="color:#666;">{{ stock.symbol }}</span>
+                </div>
             </div>
         </div>
 
-        <!-- Executive Summary -->
         <section class="report-section">
             <h2>Executive Summary</h2>
-
             <div class="summary-grid">
                 <div class="summary-card">
                     <span>Recommendation</span>
-                    <strong id="recommendation" class="safe">BUY</strong>
+                    <strong class="{% if stock.recommendation == 'BUY' %}safe{% else %}risky{% endif %}">
+                        {{ stock.recommendation }}
+                    </strong>
                 </div>
-
                 <div class="summary-card">
-                    <span>Target Price (12M)</span>
-                    <strong id="targetPrice">₹ 3,150</strong>
+                    <span>Target Price</span>
+                    <strong>{{ stock.currency_symbol }} {{ stock.target_price }}</strong>
                 </div>
-
                 <div class="summary-card">
                     <span>Expected Upside</span>
-                    <strong id="expectedUpside" class="safe">+10.5%</strong>
+                    <strong class="{% if stock.upside > 0 %}safe{% else %}risky{% endif %}">
+                        {{ stock.upside }}%
+                    </strong>
                 </div>
-
                 <div class="summary-card">
                     <span>Market Cap</span>
-                    <strong id="marketCap">₹ 19.2 L Cr</strong>
+                    <strong>{{ stock.market_cap }}</strong>
                 </div>
             </div>
         </section>
 
-        <!-- Price Action -->
         <section class="report-section">
-            <div class="price-section-title">
-                <h2>Price Action & Chart</h2>
-            </div>
-
-            <!-- Price Info -->
+            <h2>Price Action</h2>
             <div class="price-info">
                 <div class="info-box">
-                    <span>Today's High</span>
-                    <strong id="todayHigh" class="safe">₹ 2,890</strong>
-                </div>
-
-                <div class="info-box">
-                    <span>Today's Low</span>
-                    <strong id="todayLow" class="risky">₹ 2,810</strong>
-                </div>
-
-                <div class="info-box">
                     <span>Current Price</span>
-                    <strong id="currentPrice">₹ 2,850</strong>
+                    <strong style="font-size: 1.5em; color: #1f3c88;">{{ stock.currency_symbol }} {{ stock.current_price }}</strong>
                 </div>
-
-                <div class="info-box">
-                    <span>52 Week High</span>
-                    <strong id="week52">₹ 3,200</strong>
-                </div>
+                <div class="info-box"><span>52 Week High</span><strong>{{ stock.high_52 }}</strong></div>
+                <div class="info-box"><span>52 Week Low</span><strong>{{ stock.low_52 }}</strong></div>
             </div>
 
-            <!-- Chart Controls -->
-            <div class="chart-controls">
-                <button class="chart-btn active" data-period="1D" onclick="changeChart('1D')">1D</button>
-                <button class="chart-btn" data-period="1W" onclick="changeChart('1W')">1W</button>
-                <button class="chart-btn" data-period="1M" onclick="changeChart('1M')">1M</button>
-                <button class="chart-btn" data-period="3M" onclick="changeChart('3M')">3M</button>
-                <button class="chart-btn" data-period="1Y" onclick="changeChart('1Y')">1Y</button>
-            </div>
-
-            <!-- Chart -->
-            <div class="chart-box">
+            <div class="chart-box" style="margin-top: 20px;">
                 <canvas id="priceChart"></canvas>
             </div>
-
         </section>
 
-        <!-- Trading Section -->
         <section class="report-section trading-section">
             <h2>Execute Trade</h2>
-            
-            <div class="trading-container">
-                <div class="trading-form">
-                    <div class="form-group">
-                        <label for="exchange">Select Exchange</label>
-                        <select id="exchange" class="form-input">
-                            <option value="nse">NSE (National Stock Exchange)</option>
-                            <option value="bse">BSE (Bombay Stock Exchange)</option>
-                        </select>
-                    </div>
+            <form action="{% url 'dashboard' %}" method="POST" class="trading-form" style="display:flex; gap:10px; align-items:flex-end;">
+                {% csrf_token %}
+                <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+                
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" value="1" min="1" class="form-input" style="width:100px;">
+                </div>
 
-                    <div class="form-group">
-                        <label for="quantity">Stock Quantity</label>
-                        <input type="text" id="quantity" class="form-input" placeholder="Enter quantity (shares)" value="1">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Estimated Cost</label>
-                        <div class="cost-display">
-                            <strong>₹ <span id="totalCost">2,850</span></strong>
-                            <small id="costBreakdown">(1 share × ₹2,850)</small>
-                        </div>
+                <div class="form-group">
+                    <label>Est. Cost</label>
+                    <div style="padding:10px; background:#f0f0f0; border-radius:5px;">
+                        {{ stock.currency_symbol }} <span id="estCost">{{ stock.current_price }}</span>
                     </div>
                 </div>
 
-                <div class="trading-buttons">
-                    <button class="buy-btn" onclick="buyStock()">BUY STOCK</button>
-                    <button class="sell-btn" onclick="sellStock()">SELL STOCK</button>
-                </div>
-            </div>
+                <button type="submit" class="buy-btn">BUY STOCK</button>
+            </form>
         </section>
 
-        <!-- Company Overview -->
         <section class="report-section">
             <h2>Company Overview</h2>
-            <p>
-                Reliance Industries Limited is India’s largest private sector company
-                with diversified operations across petrochemicals, refining, oil & gas,
-                retail, and digital services (Jio). The company benefits from strong
-                market leadership and consistent cash flows.
-            </p>
+            <p>{{ stock.summary }}</p>
         </section>
-
-        <!-- Risks -->
-        <section class="report-section">
-            <h2>Key Risks</h2>
-            <div class="risk-items">
-                <div class="risk-item">
-                    <span class="risk-icon">⚠️</span>
-                    <span>Volatility in crude oil prices</span>
-                </div>
-                <div class="risk-item">
-                    <span class="risk-icon">⚠️</span>
-                    <span>Regulatory risks in telecom sector</span>
-                </div>
-                <div class="risk-item">
-                    <span class="risk-icon">⚠️</span>
-                    <span>High capital expenditure requirements</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Disclaimer -->
-        <section class="report-section disclaimer">
-            <p>
-                <strong>Disclaimer:</strong> This report is for educational purposes only.
-                Stock prices are subject to market risks. Please consult a financial advisor
-                before investing.
-            </p>
-        </section>
-
     </div>
 </div>
 
-<script src="{% static 'js/report.js' %}"></script>
+<script>
+    // 1. Get Data from Django (Passed as JSON)
+    const dates = JSON.parse('{{ chart_dates|safe }}');
+    const prices = JSON.parse('{{ chart_prices|safe }}');
+    const currentPrice = {{ stock.current_price }};
+
+    // 2. Render Chart
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Price History (1 Year)',
+                data: prices,
+                borderColor: '#1f3c88',
+                backgroundColor: 'rgba(31,60,136,0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1,
+                pointRadius: 0 // Hide dots for cleaner look
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: { x: { display: false } } // Hide x-axis labels for neatness
+        }
+    });
+
+    // 3. Simple Cost Calculator for the Form
+    const qtyInput = document.querySelector('input[name="quantity"]');
+    const costDisplay = document.getElementById('estCost');
+
+    qtyInput.addEventListener('input', function() {
+        let cost = (this.value * currentPrice).toFixed(2);
+        costDisplay.innerText = cost;
+    });
+</script>
 
 </body>
 </html>
