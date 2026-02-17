@@ -19,13 +19,15 @@
 
         {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'wallet' %}" class="active">Wallet</a>
             <a href="{% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'investment_diary' %}">Investment Diary</a>
             <a href="{% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
         {% else %}
-            <a href="{% url 'guest' %}">Home</a>
+            <a href="{% url 'guest' %}">Dashboard</a>
+            <a href="{% url 'wallet' %}" class="active">Wallet</a>
             <a href="{% url 'login' %}?next={% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'login' %}?next={% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}" class="active">Dictionary</a>

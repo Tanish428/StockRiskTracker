@@ -13,8 +13,11 @@
 
 <div class="container">
     <div class="sidebar">
-        <div class="logo-section"><div class="logo">📈</div><h2>StockRiskTracker</h2></div>
+        <div class="logo-section">
+            <div class="logo">📈</div>
+        <h2>StockRiskTracker</h2></div>
         <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'wallet' %}" class="active">Wallet</a>
         <a href="{% url 'watchlist' %}">Watchlist</a>
         <a href="{% url 'history' %}">History</a>
         <a href="#" class="active">Report</a>
@@ -75,27 +78,26 @@
             </div>
         </section>
 
-        <section class="report-section trading-section">
-            <h2>Execute Trade</h2>
-            <form action="{% url 'dashboard' %}" method="POST" class="trading-form" style="display:flex; gap:10px; align-items:flex-end;">
-                {% csrf_token %}
-                <input type="hidden" name="ticker" value="{{ stock.symbol }}">
-                
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" name="quantity" value="1" min="1" class="form-input" style="width:100px;">
-                </div>
+       <div style="display:flex; gap:10px;">
 
-                <div class="form-group">
-                    <label>Est. Cost</label>
-                    <div style="padding:10px; background:#f0f0f0; border-radius:5px;">
-                        {{ stock.currency_symbol }} <span id="estCost">{{ stock.current_price }}</span>
-                    </div>
-                </div>
+    <!-- BUY -->
+    <form action="{% url 'dashboard' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+        <input type="number" name="quantity" value="1" min="1">
+        <button type="submit" class="buy-btn">BUY STOCK</button>
+    </form>
 
-                <button type="submit" class="buy-btn">BUY STOCK</button>
-            </form>
-        </section>
+    <!-- SELL -->
+    <form action="{% url 'sell_stock' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+        <input type="number" name="quantity" value="1" min="1">
+        <button type="submit" class="sell-btn">SELL STOCK</button>
+    </form>
+
+</div>
+
 
         <section class="report-section">
             <h2>Company Overview</h2>

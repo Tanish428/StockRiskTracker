@@ -292,3 +292,84 @@ def delete_note(request, note_id):
     note = get_object_or_404(DiaryNote, id=note_id, user=request.user)
     note.delete()
     return redirect('investment_diary')
+
+from decimal import Decimal
+
+@login_required
+def wallet(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+
+        action = request.POST.get("action")   # ADD / WITHDRAW
+        amount = request.POST.get("amount")
+
+        try:
+            amount = Decimal(amount)
+
+            if amount <= 0:
+                raise ValueError()
+
+        except:
+            messages.error(request, "Enter a valid amount")
+            return redirect('wallet')
+
+        # ✅ ADD MONEY
+        if action == "ADD":
+            profile.wallet_balance += amount
+            profile.save()
+            messages.success(request, f"₹{amount} added successfully!")
+
+        # ✅ WITHDRAW MONEY
+        elif action == "WITHDRAW":
+
+            if profile.wallet_balance >= amount:
+                profile.wallet_balance -= amount
+                profile.save()
+                messages.success(request, f"₹{amount} withdrawn successfully!")
+            else:
+                messages.error(request, "Insufficient wallet balance!")
+
+        return redirect('wallet')
+
+    return render(request, "wallet.html", {"profile": profile})
+
+@login_required
+def sell_stock(request):
+
+    if request.method == "POST":
+
+        ticker = request.POST.get("ticker")
+        quantity = int(request.POST.get("quantity"))
+
+        profile = Profile.objects.get(user=request.user)
+
+        try:
+            stock = yf.Ticker(ticker)
+            price_float = stock.fast_info.last_price
+            current_price = Decimal(str(price_float))
+            current_price = round(current_price, 2)
+
+        except:
+            messages.error(request, "Price fetch failed")
+            return redirect(f"/report/?ticker={ticker}")
+
+        total_value = current_price * Decimal(quantity)
+
+        # ✅ CREDIT MONEY
+        profile.wallet_balance += total_value
+        profile.save()
+
+        # ✅ SAVE TRANSACTION
+        Transaction.objects.create(
+            user=request.user,
+            ticker=ticker,
+            transaction_type="SELL",
+            quantity=quantity,
+            price_at_transaction=current_price,
+            total_cost=total_value
+        )
+
+        messages.success(request, f"Sold {quantity} {ticker} @ ₹{current_price}")
+
+    return redirect('dashboard')

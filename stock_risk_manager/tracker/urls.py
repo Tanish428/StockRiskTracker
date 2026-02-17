@@ -19,4 +19,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('quiz/', views.quiz, name='quiz'),
     path("", views.index, name="index"),
+    path('wallet/', views.wallet, name='wallet'),
+    path('sell/', views.sell_stock, name='sell_stock'),
+
 ]
