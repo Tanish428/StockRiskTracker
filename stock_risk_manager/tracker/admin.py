@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Profile, Transaction, Watchlist, DiaryNote
 
-# Register your models here.
+# Register your models here so they show up in the Admin Panel
+admin.site.register(Profile)
+admin.site.register(Transaction)
+admin.site.register(Watchlist)
+admin.site.register(DiaryNote)

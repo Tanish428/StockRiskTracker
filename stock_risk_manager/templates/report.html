@@ -2,39 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ stock.name }} Report</title>
+    <title>{{ stock.name }} Report | StockRiskTracker</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/report.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Specific styles for the Action Buttons */
+        .action-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .qty-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 80px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: opacity 0.2s;
+            height: 42px; /* Uniform height */
+        }
+        .btn:hover { opacity: 0.9; }
+
+        .btn-buy { background-color: #2ecc71; }
+        .btn-sell { background-color: #e74c3c; }
+        .btn-watch { background-color: #f39c12; }
+
+        /* Message Styling */
+        .messages-container {
+            margin-bottom: 20px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .alert-success { background-color: #2ecc71; }
+        .alert-error { background-color: #e74c3c; }
+        .alert-info { background-color: #3498db; }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
+
     <div class="sidebar">
         <div class="logo-section">
             <div class="logo">📈</div>
-        <h2>StockRiskTracker</h2></div>
+            <h2>StockRiskTracker</h2>
+        </div>
         <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="{% url 'wallet' %}" class="active">Wallet</a>
+        <a href="{% url 'wallet' %}">Wallet</a>
         <a href="{% url 'watchlist' %}">Watchlist</a>
+        <a href="{% url 'investment_diary' %}">Investment Diary</a>
         <a href="{% url 'history' %}">History</a>
-        <a href="#" class="active">Report</a>
+        <a href="{% url 'dictionary' %}">Dictionary</a>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
     </div>
 
     <div class="main">
+
         <div class="header-top">
             <div class="header-content">
-                <div class="company-logo" style="display:flex;align-items:center;justify-content:center;background:#eee;font-weight:bold;font-size:24px;">
+                <div class="company-logo" style="display:flex;align-items:center;justify-content:center;background:#eee;font-weight:bold;font-size:24px; width:50px; height:50px; border-radius:50%;">
                     {{ stock.symbol|slice:":1" }}
                 </div>
-                <div>
-                    <h1>{{ stock.name }}</h1>
-                    <span style="color:#666;">{{ stock.symbol }}</span>
+                <div style="margin-left: 15px;">
+                    <h1 style="margin:0;">{{ stock.name }}</h1>
+                    <span style="color:#666; font-size:14px;">{{ stock.symbol }} • {{ stock.currency }}</span>
                 </div>
             </div>
         </div>
+
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
         <section class="report-section">
             <h2>Executive Summary</h2>
@@ -67,83 +133,134 @@
             <div class="price-info">
                 <div class="info-box">
                     <span>Current Price</span>
-                    <strong style="font-size: 1.5em; color: #1f3c88;">{{ stock.currency_symbol }} {{ stock.current_price }}</strong>
+                    <strong style="font-size: 1.5em; color: #1f3c88;">
+                        {{ stock.currency_symbol }} {{ stock.current_price }}
+                    </strong>
                 </div>
-                <div class="info-box"><span>52 Week High</span><strong>{{ stock.high_52 }}</strong></div>
-                <div class="info-box"><span>52 Week Low</span><strong>{{ stock.low_52 }}</strong></div>
+                <div class="info-box">
+                    <span>52 Week High</span>
+                    <strong>{{ stock.currency_symbol }} {{ stock.high_52 }}</strong>
+                </div>
+                <div class="info-box">
+                    <span>52 Week Low</span>
+                    <strong>{{ stock.currency_symbol }} {{ stock.low_52 }}</strong>
+                </div>
             </div>
 
-            <div class="chart-box" style="margin-top: 20px;">
+            <div class="chart-box" style="margin-top: 20px; height: 300px;">
                 <canvas id="priceChart"></canvas>
             </div>
         </section>
 
-       <div style="display:flex; gap:10px;">
+        <section class="report-section">
+            <h2>Actions</h2>
+            
+            <div class="action-container">
 
-    <!-- BUY -->
-    <form action="{% url 'dashboard' %}" method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="ticker" value="{{ stock.symbol }}">
-        <input type="number" name="quantity" value="1" min="1">
-        <button type="submit" class="buy-btn">BUY STOCK</button>
-    </form>
+                <form action="{% url 'dashboard' %}" method="POST" style="display:flex; gap:10px; align-items:center;">
+                    {% csrf_token %}
+                    <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+                    
+                    <div>
+                        <input type="number" name="quantity" value="1" min="1" class="qty-input" placeholder="Qty">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-buy">BUY STOCK</button>
+                </form>
 
-    <!-- SELL -->
-    <form action="{% url 'sell_stock' %}" method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="ticker" value="{{ stock.symbol }}">
-        <input type="number" name="quantity" value="1" min="1">
-        <button type="submit" class="sell-btn">SELL STOCK</button>
-    </form>
+                <form action="{% url 'sell_stock' %}" method="POST" style="display:flex; gap:10px; align-items:center;">
+                    {% csrf_token %}
+                    <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+                    <input type="number" name="quantity" value="1" min="1" class="qty-input" placeholder="Qty">
+                    <button type="submit" class="btn btn-sell">SELL STOCK</button>
+                </form>
 
-</div>
+                <form action="{% url 'add_to_watchlist' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="ticker" value="{{ stock.symbol }}">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    
+                    <button type="submit" class="btn btn-watch">★ ADD TO WATCHLIST</button>
+                </form>
 
+            </div>
+
+            <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                Est. Cost: <strong id="estCostDisplay">{{ stock.currency_symbol }} {{ stock.current_price }}</strong>
+            </div>
+        </section>
 
         <section class="report-section">
             <h2>Company Overview</h2>
-            <p>{{ stock.summary }}</p>
+            <p style="line-height: 1.6; color: #444;">{{ stock.summary }}</p>
         </section>
+
     </div>
 </div>
 
 <script>
-    // 1. Get Data from Django (Passed as JSON)
-    const dates = JSON.parse('{{ chart_dates|safe }}');
-    const prices = JSON.parse('{{ chart_prices|safe }}');
-    const currentPrice = {{ stock.current_price }};
+    // 1. Get Data from Django (Safely formatted)
+    const dates = {{ chart_dates|safe }};
+    const prices = {{ chart_prices|safe }};
+    const currentPrice = {{ stock.current_price|default:"0" }};
+    const currencySymbol = "{{ stock.currency_symbol }}";
 
-    // 2. Render Chart
-    const ctx = document.getElementById('priceChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Price History (1 Year)',
-                data: prices,
-                borderColor: '#1f3c88',
-                backgroundColor: 'rgba(31,60,136,0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.1,
-                pointRadius: 0 // Hide dots for cleaner look
-            }]
-        },
-        options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            scales: { x: { display: false } } // Hide x-axis labels for neatness
-        }
-    });
+    // 2. Render Chart (Only if data exists)
+    if (document.getElementById('priceChart') && dates.length > 0) {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Price History (1 Year)',
+                    data: prices,
+                    borderColor: '#1f3c88',
+                    backgroundColor: 'rgba(31,60,136,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2, // Smooth curves
+                    pointRadius: 0 // Hide dots for cleaner look
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return currencySymbol + ' ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false }, // Hide dates on X-axis to save space
+                    y: {
+                        ticks: {
+                            callback: function(value) { return currencySymbol + value; }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
-    // 3. Simple Cost Calculator for the Form
-    const qtyInput = document.querySelector('input[name="quantity"]');
-    const costDisplay = document.getElementById('estCost');
+    // 3. Cost Calculator Logic
+    // We target the BUY input specifically
+    const buyInput = document.querySelector('form[action*="dashboard"] input[name="quantity"]');
+    const costDisplay = document.getElementById('estCostDisplay');
 
-    qtyInput.addEventListener('input', function() {
-        let cost = (this.value * currentPrice).toFixed(2);
-        costDisplay.innerText = cost;
-    });
+    if (buyInput && costDisplay) {
+        buyInput.addEventListener('input', function() {
+            let qty = parseInt(this.value) || 0;
+            let cost = (qty * currentPrice).toFixed(2);
+            costDisplay.innerText = currencySymbol + ' ' + cost;
+        });
+    }
 </script>
 
 </body>

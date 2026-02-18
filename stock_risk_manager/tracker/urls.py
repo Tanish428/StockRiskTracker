@@ -21,5 +21,6 @@ urlpatterns = [
     path("", views.index, name="index"),
     path('wallet/', views.wallet, name='wallet'),
     path('sell/', views.sell_stock, name='sell_stock'),
-
+    path('watchlist/add/', views.add_to_watchlist, name='add_to_watchlist'),
+    path('watchlist/remove/<int:item_id>/', views.remove_from_watchlist, name='remove_from_watchlist'),
 ]

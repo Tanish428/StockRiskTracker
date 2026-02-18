@@ -7,7 +7,8 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
-from .models import Profile,Transaction # Make sure this is imported at the top
+from .models import Profile,Transaction
+from .models import Watchlist  
 
 # --- 1. REAL LOGIN LOGIC ---
 def login(request):
@@ -143,11 +144,15 @@ def register(request):
 
     return render(request, 'register.html')
 
-def watchlist(request):
-    return render(request, 'watchlist.html')
-
+@login_required
 def history(request):
-    return render(request, 'history.html')
+    # Fetch all transactions for this user, newest first
+    transactions = Transaction.objects.filter(user=request.user).order_by('-timestamp')
+    
+    context = {
+        'transactions': transactions
+    }
+    return render(request, 'history.html', context)
 
 def dictionary(request):
     return render(request, 'dictionary.html')
@@ -373,3 +378,85 @@ def sell_stock(request):
         messages.success(request, f"Sold {quantity} {ticker} @ ₹{current_price}")
 
     return redirect('dashboard')
+
+@login_required
+def watchlist(request):
+    # 1. Fetch user's watchlist from Database
+    saved_stocks = Watchlist.objects.filter(user=request.user).order_by('-added_at')
+    
+    watchlist_data = []
+
+    # 2. Fetch Live Data for each stock
+    for item in saved_stocks:
+        try:
+            stock = yf.Ticker(item.ticker)
+            
+            # Use fast_info for speed (avoid .info in loops if possible)
+            current_price = stock.fast_info.last_price
+            previous_close = stock.fast_info.previous_close
+            
+            # Calculate Change %
+            change_percent = ((current_price - previous_close) / previous_close) * 100
+            
+            # Determine Risk (Simplified: High Volatility = Risky)
+            # We use 'change_percent' as a proxy for volatility here to keep it fast
+            risk_status = "RISKY" if abs(change_percent) > 2 else "SAFE"
+
+            watchlist_data.append({
+                'id': item.id,  # Needed for delete button
+                'symbol': item.ticker,
+                'price': round(current_price, 2),
+                'change': round(change_percent, 2),
+                'risk': risk_status
+            })
+        except Exception as e:
+            # If stock data fails, show error placeholder
+            watchlist_data.append({
+                'id': item.id,
+                'symbol': item.ticker,
+                'price': "Error",
+                'change': 0,
+                'risk': "Unknown"
+            })
+
+    return render(request, 'watchlist.html', {'watchlist': watchlist_data})
+
+@login_required
+def add_to_watchlist(request):
+    if request.method == "POST":
+        ticker = request.POST.get('ticker').upper().strip()
+        
+        # Check if already exists to prevent duplicates
+        if not Watchlist.objects.filter(user=request.user, ticker=ticker).exists():
+            # Verify if it's a real stock (optional check, good for safety)
+            try:
+                stock = yf.Ticker(ticker)
+                # We check fast_info or info to ensure it exists
+                if stock.fast_info.last_price:
+                    Watchlist.objects.create(user=request.user, ticker=ticker)
+                    messages.success(request, f"Added {ticker} to watchlist.")
+            except:
+                messages.error(request, f"Could not find stock {ticker}")
+        else:
+            messages.info(request, f"{ticker} is already in your watchlist.")
+    
+    # SMART REDIRECT:
+    # If the form sent a 'next' parameter (like from report page), go there.
+    # Otherwise, go to the default watchlist page.
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
+        
+    return redirect('watchlist')
+
+@login_required
+def remove_from_watchlist(request, item_id):
+    # Get the item or 404 (Security: Ensure it belongs to request.user)
+    try:
+        item = Watchlist.objects.get(id=item_id, user=request.user)
+        item.delete()
+        messages.success(request, "Stock removed.")
+    except Watchlist.DoesNotExist:
+        messages.error(request, "Item not found.")
+        
+    return redirect('watchlist')
