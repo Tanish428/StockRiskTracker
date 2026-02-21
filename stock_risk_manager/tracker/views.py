@@ -460,3 +460,49 @@ def remove_from_watchlist(request, item_id):
         messages.error(request, "Item not found.")
         
     return redirect('watchlist')
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import UpdateProfileForm
+
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+@login_required
+def update_profile(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        old_password = request.POST.get("old_password")
+        new_password = request.POST.get("new_password")
+
+        user = request.user
+
+        # ✅ VERIFY OLD PASSWORD (MANDATORY)
+        if not user.check_password(old_password):
+            messages.error(request, "Old password is incorrect.")
+            return redirect("update_profile")
+
+        # ✅ UPDATE BASIC DETAILS
+        user.username = username
+        user.email = email
+
+        # ✅ CHANGE PASSWORD (IF PROVIDED)
+        if new_password:
+            user.set_password(new_password)
+
+        user.save()
+
+        # ✅ KEEP USER LOGGED IN (CRITICAL)
+        update_session_auth_hash(request, user)
+
+        messages.success(request, "Profile updated successfully!")
+        return redirect("profile")
+
+    return render(request, "update_profile.html")

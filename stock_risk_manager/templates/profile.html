@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>User Profile | StockRiskTracker</title>
@@ -9,88 +10,105 @@
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
     <style>
         /* Add these small helpers for dynamic colors */
-        .safe-text { color: #2ecc71; }
-        .risky-text { color: #e74c3c; }
-        .neutral-text { color: #95a5a6; }
+        .safe-text {
+            color: #2ecc71;
+        }
+
+        .risky-text {
+            color: #e74c3c;
+        }
+
+        .neutral-text {
+            color: #95a5a6;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-
-       <a href="{% url 'dashboard' %}">Dashboard</a>
-       <a href="{% url 'watchlist' %}">Watchlist</a>
-       <a href="{% url 'history' %}">History</a>
-       <a href="{% url 'dictionary' %}">Dictionary</a>
-       <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-    </div>
-
-    <div class="main">
-
-        <div class="header-top">
-            <h1>User Profile</h1>
-        </div>
-
-        <div class="profile-card">
-
-            <div class="profile-left">
-                <div class="avatar-ring">
-                    <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile Image">
-                </div>
-
-                <span class="risk-badge {% if profile.risk_category == 'Safe' %}safe{% else %}risky{% endif %}">
-                    {{ profile.risk_category|default:"Neutral" }}
-                </span>
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">📈</div>
+                <h2>StockRiskTracker</h2>
             </div>
 
-            <div class="profile-right">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
 
-                <div class="info-row">
-                    <span>Username</span>
-                    <strong>{{ user.username }}</strong>
-                </div>
+        <div class="main">
 
-                <div class="info-row">
-                    <span>Email</span>
-                    <strong>
-                        {% if user.email %}
-                            {{ user.email }}
-                        {% else %}
-                            <span style="color: #ccc;">No email linked</span>
-                        {% endif %}
-                    </strong>
-                </div>
+            <div class="header-top">
+                <h1>User Profile</h1>
+            </div>
 
-                <div class="info-row">
-                    <span>Wallet Balance</span>
-                    <strong>₹ {{ profile.wallet_balance }}</strong>
-                </div>
+            <div class="profile-card">
 
-                <div class="info-row">
-                    <span>Risk Status</span>
-                    <strong class="{% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
+                <div class="profile-left">
+                    <div class="avatar-ring">
+                        <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile Image">
+                    </div>
+
+                    <span class="risk-badge {% if profile.risk_category == 'Safe' %}safe{% else %}risky{% endif %}">
                         {{ profile.risk_category|default:"Neutral" }}
-                    </strong>
+                    </span>
                 </div>
 
-                <div class="quiz-section">
-                    <p>Want to reassess your investment risk?</p>
-                    <a href="{% url 'quiz' %}" class="quiz-btn">Retake Risk Quiz</a>
+                <div class="profile-right">
+
+                    <div class="info-row">
+                        <span>Username</span>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Email</span>
+                        <strong>
+                            {% if user.email %}
+                            {{ user.email }}
+                            {% else %}
+                            <span style="color: #ccc;">No email linked</span>
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Wallet Balance</span>
+                        <strong>₹ {{ profile.wallet_balance }}</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Risk Status</span>
+                        <strong
+                            class="{% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
+                            {{ profile.risk_category|default:"Neutral" }}
+                        </strong>
+                    </div>
+
+                    <div class="quiz-section">
+                        <p>Want to reassess your investment risk?</p>
+                        <a href="{% url 'quiz' %}" class="quiz-btn">Retake Risk Quiz</a>
+                    </div>
+
+                    <div class="quiz-section">
+                        <p>Want to update your profile details?</p>
+                        <a href="{% url 'update_profile' %}" class="quiz-btn">
+                            Update Profile
+                        </a>
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
-
     </div>
-</div>
 
 </body>
+
 </html>
