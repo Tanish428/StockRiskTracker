@@ -138,13 +138,21 @@ def register(request):
 
     return render(request, 'register.html')
 
-@login_required
 def history(request):
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        context = {
+            'is_guest': True,
+            'message': 'Please login to view your transaction history.'
+        }
+        return render(request, 'history.html', context)
+    
     # Fetch all transactions for this user, newest first
     transactions = Transaction.objects.filter(user=request.user).order_by('-timestamp')
     
     context = {
-        'transactions': transactions
+        'transactions': transactions,
+        'is_guest': False
     }
     return render(request, 'history.html', context)
 
@@ -395,8 +403,15 @@ def sell_stock(request):
 
     return redirect('dashboard')
 
-@login_required
 def watchlist(request):
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        context = {
+            'is_guest': True,
+            'message': 'Please login to view your watchlist.'
+        }
+        return render(request, 'watchlist.html', context)
+    
     # 1. Fetch user's watchlist from Database
     saved_stocks = Watchlist.objects.filter(user=request.user).order_by('-added_at')
     
@@ -435,7 +450,7 @@ def watchlist(request):
                 'risk': "Unknown"
             })
 
-    return render(request, 'watchlist.html', {'watchlist': watchlist_data})
+    return render(request, 'watchlist.html', {'watchlist': watchlist_data, 'is_guest': False})
 
 @login_required
 def add_to_watchlist(request):

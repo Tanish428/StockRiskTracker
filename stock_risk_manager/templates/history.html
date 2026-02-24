@@ -96,13 +96,21 @@
             <div class="logo">📈</div>
             <h2>StockRiskTracker</h2>
         </div>
-        <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="{% url 'wallet' %}">Wallet</a>
-        <a href="{% url 'watchlist' %}">Watchlist</a>
-        <a href="{% url 'investment_diary' %}">Investment Diary</a>
-        <a href="#" class="active">History</a>
-        <a href="{% url 'dictionary' %}">Dictionary</a>
-        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% if is_guest %}
+            <a href="{% url 'guest' %}">Dashboard</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}" class="active">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
+            <a href="{% url 'login' %}" class="logout-btn">Login</a>
+        {% else %}
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'wallet' %}">Wallet</a>
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'investment_diary' %}">Investment Diary</a>
+            <a href="#" class="active">History</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        {% endif %}
     </div>
 
     <div class="main">
@@ -110,7 +118,18 @@
             <h1>Transaction History</h1>
         </div>
 
-        {% if transactions %}
+        {% if is_guest %}
+            <!-- Guest Login Notification -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; text-align: center; color: white; margin-top: 30px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+                <h2 style="margin: 0 0 10px 0; font-size: 28px;">Please login</h2>
+                <p style="font-size: 16px; margin: 10px 0 20px 0; opacity: 0.95;">You need to log in to view your transaction history.</p>
+                <a href="{% url 'login' %}" style="display: inline-block; background-color: white; color: #667eea; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    → Go to Login
+                </a>
+            </div>
+        {% else %}
+            {% if transactions %}
             <table class="history-table">
                 <thead>
                     <tr>
@@ -124,7 +143,7 @@
                 </thead>
                 <tbody>
                     {% for t in transactions %}
-                    <tr class="history-row" onclick="window.location.href='{% url 'report' %}?ticker={{ t.ticker }}'">
+                    <tr class="history-row" onclick="window.location.href='{% url "report" %}?ticker={{ t.ticker }}'">
                         
                         <td style="color:#666; font-size:0.9em;">
                             {{ t.timestamp|date:"M d, Y • H:i" }}
@@ -155,14 +174,14 @@
                     {% endfor %}
                 </tbody>
             </table>
-
-        {% else %}
+            {% else %}
             <div class="no-data">
                 <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
                 <h3>No transactions found</h3>
                 <p>You haven't made any trades yet. Start investing to see your history here.</p>
                 <a href="{% url 'dashboard' %}" class="btn-primary">Go to Dashboard</a>
             </div>
+            {% endif %}
         {% endif %}
 
     </div>

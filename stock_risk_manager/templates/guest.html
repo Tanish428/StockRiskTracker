@@ -18,12 +18,12 @@
                 <div class="logo">📈</div>
                 <h2>StockRiskTracker</h2>
             </div>
-            <a href="/" class="active">Dashboard</a>
-            <!-- Protected pages redirect guests to login -->
-            <a href="{% url 'login' %}?next={% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'login' %}?next={% url 'history' %}">History</a>
+            <a href="{% url 'guest' %}" class="active">Dashboard</a>
+            <!-- Direct links to pages - guests will see login notification instead of auto-redirect -->
+            <a href="{% url 'watchlist' %}">Watchlist</a>
+            <a href="{% url 'history' %}">History</a>
             <!-- Dictionary is public (top-level for guests) -->
-            <a href="/dictionary">Dictionary</a>
+            <a href="{% url 'dictionary' %}">Dictionary</a>
             <a href="{% url 'login' %}" class="logout-btn">Login</a>
         </div>
 
