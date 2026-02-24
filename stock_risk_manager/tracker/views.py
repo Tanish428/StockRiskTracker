@@ -1,3 +1,5 @@
+from .services import get_live_inr_price
+from django.urls import reverse
 from decimal import Decimal
 import yfinance as yf # Ensure this is imported at top
 import json
@@ -9,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from .models import Profile,Transaction
 from .models import Watchlist  
+from django.db.models import Sum
 
 # --- 1. REAL LOGIN LOGIC ---
 def login(request):
@@ -44,56 +47,47 @@ def dashboard(request):
     user_profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        ticker = request.POST.get('ticker')
-        quantity = int(request.POST.get('quantity'))
+        ticker = request.POST.get('ticker').upper().strip()
 
+        # 1. Sanitize Quantity to prevent 500 crashes
         try:
-            # 1. Fetch Live Price
-            stock = yf.Ticker(ticker)
-            
-            # fast_info is often faster/more reliable than .info for price
-            price_float = stock.fast_info.last_price 
-            
-            if price_float is None:
-                # Fallback to history if fast_info fails
-                data = stock.history(period="1d")
-                if data.empty:
-                    raise ValueError("No data found")
-                price_float = data['Close'].iloc[-1]
-
-            # 2. THE FIX: Convert Float to Decimal for Money Math
-            current_price = Decimal(str(price_float))  # Convert to string first to avoid float artifacts
-            
-            # Round to 2 decimal places (standard for currency)
-            current_price = round(current_price, 2)
-
-        except Exception as e:
-            messages.error(request, f"Error checking price for {ticker}. Try again.")
+            quantity = int(request.POST.get('quantity'))
+            if quantity <= 0:
+                raise ValueError("Quantity must be positive.")
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid quantity provided.")
             return redirect('dashboard')
 
-        # 3. Calculate Cost (Now both are Decimals)
-        total_cost = current_price * Decimal(quantity)
+        # --- NEW CLEAN SERVICE CALL ---
+        try:
+            price_in_inr, currency, raw_price = get_live_inr_price(ticker)
+            total_cost = price_in_inr * Decimal(quantity)
+        except Exception as e:
+            print(f"CRITICAL API ERROR on BUY {ticker}: {e}")
+            messages.error(request, f"Error checking market data for {ticker}. Please try again.")
+            return redirect('dashboard')
+        # ------------------------------
 
-        # 4. Check Wallet & Buy
+        # 6. Check Wallet & Execute
         if user_profile.wallet_balance >= total_cost:
             
-            # A. Deduct Money (Decimal - Decimal = OK!)
             user_profile.wallet_balance -= total_cost
             user_profile.save()
 
-            # B. Save Transaction
             Transaction.objects.create(
                 user=request.user,
                 ticker=ticker,
                 transaction_type="BUY",
                 quantity=quantity,
-                price_at_transaction=current_price,
+                price_at_transaction=price_in_inr, # Ledger saved strictly in INR
                 total_cost=total_cost,
                 timestamp=timezone.now()
             )
 
-            # Success Message with ₹ Symbol
-            messages.success(request, f"Success! Bought {quantity} {ticker} @ ₹{current_price}")
+            if currency == 'USD':
+                messages.success(request, f"Success! Bought {quantity} {ticker} @ ₹{price_in_inr} (Converted from ${round(raw_price, 2)})")
+            else:
+                messages.success(request, f"Success! Bought {quantity} {ticker} @ ₹{price_in_inr}")
         else:
             messages.error(request, f"Insufficient funds! Needed ₹{total_cost}, have ₹{user_profile.wallet_balance}")
 
@@ -341,41 +335,63 @@ def wallet(request):
 
 @login_required
 def sell_stock(request):
-
     if request.method == "POST":
-
-        ticker = request.POST.get("ticker")
-        quantity = int(request.POST.get("quantity"))
+        ticker = request.POST.get("ticker").upper().strip()
+        
+        # 1. Sanitize Quantity
+        try:
+            quantity = int(request.POST.get("quantity"))
+            if quantity <= 0:
+                raise ValueError("Quantity must be positive.")
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid quantity.")
+            # Dynamically resolves the base URL, then appends the query parameter
+            return redirect(f"{reverse('report')}?ticker={ticker}")
 
         profile = Profile.objects.get(user=request.user)
 
+        # 2. THE EXPLOIT FIX: Verify Actual Ownership
+        # Sum all BUYs, subtract all SELLs to find current holdings
+        bought = Transaction.objects.filter(
+            user=request.user, ticker=ticker, transaction_type="BUY"
+        ).aggregate(Sum('quantity'))['quantity__sum'] or 0
+        
+        sold = Transaction.objects.filter(
+            user=request.user, ticker=ticker, transaction_type="SELL"
+        ).aggregate(Sum('quantity'))['quantity__sum'] or 0
+        
+        owned_quantity = bought - sold
+
+        if quantity > owned_quantity:
+            messages.error(request, f"Trade Rejected: You are trying to sell {quantity} shares, but you only own {owned_quantity} shares of {ticker}.")
+            # Dynamically resolves the base URL, then appends the query parameter
+            return redirect(f"{reverse('report')}?ticker={ticker}")
+
+        # 3. Fetch Price & Apply Forex (The Currency Fix)
+        # 3. Fetch Price & Apply Forex (The Currency Fix)
+        # --- NEW CLEAN SERVICE CALL ---
         try:
-            stock = yf.Ticker(ticker)
-            price_float = stock.fast_info.last_price
-            current_price = Decimal(str(price_float))
-            current_price = round(current_price, 2)
+            price_in_inr, currency, raw_price = get_live_inr_price(ticker)
+            total_value = price_in_inr * Decimal(quantity)
+        except Exception as e:
+            messages.error(request, str(e))
+            return redirect(f"{reverse('report')}?ticker={ticker}")
+        # ------------------------------
 
-        except:
-            messages.error(request, "Price fetch failed")
-            return redirect(f"/report/?ticker={ticker}")
-
-        total_value = current_price * Decimal(quantity)
-
-        # ✅ CREDIT MONEY
+        # 4. Execute Trade & Update Ledger
         profile.wallet_balance += total_value
         profile.save()
 
-        # ✅ SAVE TRANSACTION
         Transaction.objects.create(
             user=request.user,
             ticker=ticker,
             transaction_type="SELL",
             quantity=quantity,
-            price_at_transaction=current_price,
+            price_at_transaction=price_in_inr, # Save in INR
             total_cost=total_value
         )
 
-        messages.success(request, f"Sold {quantity} {ticker} @ ₹{current_price}")
+        messages.success(request, f"Successfully sold {quantity} {ticker} @ ₹{price_in_inr} for a total of ₹{total_value}")
 
     return redirect('dashboard')
 
