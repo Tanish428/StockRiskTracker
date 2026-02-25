@@ -67,9 +67,11 @@ body {
 }
 
 .sidebar a.active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: #0d1a35;
     color: #ffffff;
     font-weight: bold;
+    border-left: 4px solid #4a9eff;
+    padding-left: 10px;
 }
 
 .logout-btn {

@@ -403,14 +403,21 @@ def sell_stock(request):
 
     return redirect('dashboard')
 
-@login_required
 def watchlist(request):
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        context = {
+            'is_guest': True,
+            'message': 'Please login to view and manage your watchlist.'
+        }
+        return render(request, 'watchlist.html', context)
+    
     # 1. Fetch user's watchlist from Database
     saved_stocks = Watchlist.objects.filter(user=request.user).order_by('-added_at')
     
     # If the watchlist is empty, skip the API entirely
     if not saved_stocks:
-        return render(request, 'watchlist.html', {'watchlist': []})
+        return render(request, 'watchlist.html', {'watchlist': [], 'is_guest': False})
 
     # 2. THE SHIELD: Compile the Grocery List
     # Extract just the symbols into a list: ['AAPL', 'TSLA', 'RELIANCE.NS']
@@ -468,7 +475,7 @@ def watchlist(request):
                 'id': item.id, 'symbol': item.ticker, 'price': "---", 'change': 0, 'risk': "---"
             })
 
-    return render(request, 'watchlist.html', {'watchlist': watchlist_data})
+    return render(request, 'watchlist.html', {'watchlist': watchlist_data, 'is_guest': False})
 
 @login_required
 def add_to_watchlist(request):

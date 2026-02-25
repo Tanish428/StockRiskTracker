@@ -17,21 +17,53 @@
 .wallet-actions {
     display: flex;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
-.wallet-actions form {
+.action-section {
     background: white;
     padding: 20px;
     border-radius: 10px;
     flex: 1;
+    min-width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.add-btn {
-    background: green;
+.action-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.amount-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.amount-btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
     color: white;
 }
 
-.withdraw-btn {
-    background: red;
-    color: white;
+.action-section:first-child .amount-btn {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.action-section:first-child .amount-btn:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+}
+
+.action-section:last-child .amount-btn {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.action-section:last-child .amount-btn:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
 }

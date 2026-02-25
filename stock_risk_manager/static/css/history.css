@@ -61,8 +61,10 @@ body {
 
 .sidebar a:hover,
 .sidebar a.active {
-    background: rgba(255,255,255,0.15);
+    background: #0d1a35;
     color: #fff;
+    border-left: 4px solid #4a9eff;
+    padding-left: 10px;
 }
 
 .logout-btn {
