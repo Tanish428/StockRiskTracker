@@ -403,54 +403,72 @@ def sell_stock(request):
 
     return redirect('dashboard')
 
+@login_required
 def watchlist(request):
-    # Check if user is authenticated
-    if not request.user.is_authenticated:
-        context = {
-            'is_guest': True,
-            'message': 'Please login to view your watchlist.'
-        }
-        return render(request, 'watchlist.html', context)
-    
     # 1. Fetch user's watchlist from Database
     saved_stocks = Watchlist.objects.filter(user=request.user).order_by('-added_at')
     
+    # If the watchlist is empty, skip the API entirely
+    if not saved_stocks:
+        return render(request, 'watchlist.html', {'watchlist': []})
+
+    # 2. THE SHIELD: Compile the Grocery List
+    # Extract just the symbols into a list: ['AAPL', 'TSLA', 'RELIANCE.NS']
+    ticker_symbols = [item.ticker for item in saved_stocks]
+    # Join them into a single string: "AAPL TSLA RELIANCE.NS"
+    tickers_string = " ".join(ticker_symbols)
+
     watchlist_data = []
 
-    # 2. Fetch Live Data for each stock
-    for item in saved_stocks:
-        try:
-            stock = yf.Ticker(item.ticker)
-            
-            # Use fast_info for speed (avoid .info in loops if possible)
-            current_price = stock.fast_info.last_price
-            previous_close = stock.fast_info.previous_close
-            
-            # Calculate Change %
-            change_percent = ((current_price - previous_close) / previous_close) * 100
-            
-            # Determine Risk (Simplified: High Volatility = Risky)
-            # We use 'change_percent' as a proxy for volatility here to keep it fast
-            risk_status = "RISKY" if abs(change_percent) > 2 else "SAFE"
+    try:
+        # 3. ONE NETWORK CALL. We ask Yahoo once for everything.
+        print(f"DEBUG [WATCHLIST]: Fetching batch data for: {tickers_string}")
+        batch_data = yf.Tickers(tickers_string)
 
+        # 4. Loop through the local memory, NOT the internet
+        for item in saved_stocks:
+            try:
+                # Access the pre-downloaded data from memory
+                stock = batch_data.tickers[item.ticker]
+                current_price = stock.fast_info.last_price
+                previous_close = stock.fast_info.previous_close
+                
+                if current_price is None or previous_close is None:
+                    raise ValueError("Incomplete data")
+
+                # Calculate Change %
+                change_percent = ((current_price - previous_close) / previous_close) * 100
+                risk_status = "RISKY" if abs(change_percent) > 2 else "SAFE"
+
+                watchlist_data.append({
+                    'id': item.id,
+                    'symbol': item.ticker,
+                    'price': round(current_price, 2),
+                    'change': round(change_percent, 2),
+                    'risk': risk_status
+                })
+            except Exception as e:
+                # If one stock fails (e.g. delisted), catch it and let the others load
+                print(f"DEBUG [WATCHLIST]: Failed to parse {item.ticker} - {e}")
+                watchlist_data.append({
+                    'id': item.id,
+                    'symbol': item.ticker,
+                    'price': "Error",
+                    'change': 0,
+                    'risk': "Unknown"
+                })
+
+    except Exception as e:
+        # If the single network call completely fails
+        print(f"CRITICAL [WATCHLIST BATCH ERROR]: {e}")
+        messages.error(request, "Failed to load live market data. Showing partial list.")
+        # Fallback: Still show the tickers so the user can delete them if needed
+        for item in saved_stocks:
             watchlist_data.append({
-                'id': item.id,  # Needed for delete button
-                'symbol': item.ticker,
-                'price': round(current_price, 2),
-                'change': round(change_percent, 2),
-                'risk': risk_status
-            })
-        except Exception as e:
-            # If stock data fails, show error placeholder
-            watchlist_data.append({
-                'id': item.id,
-                'symbol': item.ticker,
-                'price': "Error",
-                'change': 0,
-                'risk': "Unknown"
+                'id': item.id, 'symbol': item.ticker, 'price': "---", 'change': 0, 'risk': "---"
             })
 
-    return render(request, 'watchlist.html', {'watchlist': watchlist_data, 'is_guest': False})
+    return render(request, 'watchlist.html', {'watchlist': watchlist_data})
 
 @login_required
 def add_to_watchlist(request):
@@ -537,3 +555,21 @@ def update_profile(request):
         return redirect("profile")
 
     return render(request, "update_profile.html")
+
+@login_required
+def reset_account(request):
+    # SECURITY: Only accept POST requests to prevent accidental/malicious URL triggering
+    if request.method == "POST":
+        # 1. Wipe the immutable ledger for this specific user
+        Transaction.objects.filter(user=request.user).delete()
+
+        # 2. Reset the bank
+        profile = Profile.objects.get(user=request.user)
+        profile.wallet_balance = Decimal('10000.00')
+        profile.save()
+
+        messages.success(request, "SYSTEM RESET: Your ledger has been wiped and wallet restored to ₹10,000.00.")
+        return redirect('history')
+    
+    # If they try to navigate here via the URL bar (GET request), kick them away
+    return redirect('history')

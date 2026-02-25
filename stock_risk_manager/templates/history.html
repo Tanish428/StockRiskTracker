@@ -183,6 +183,17 @@
             </div>
             {% endif %}
         {% endif %}
+        <div class="mt-4 mb-4" style="border: 1px solid red; padding: 15px; border-radius: 5px; background-color: #fff5f5;">
+    <h4 style="color: red;">Danger Zone</h4>
+    <p>This action will permanently delete all your past transactions and reset your wallet balance to ₹10,000.00. This cannot be undone.</p>
+    
+    <form action="{% url 'reset_account' %}" method="POST" onsubmit="return confirm('CRITICAL WARNING: This will permanently wipe your entire trading history and reset your wallet. Are you absolutely sure you want to proceed?');">
+        {% csrf_token %}
+        <button type="submit" style="background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            Wipe Ledger & Reset Account
+        </button>
+    </form>
+</div>
 
     </div>
 </div>
