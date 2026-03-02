@@ -92,6 +92,34 @@
             </div>
         </div>
 
+        {% if stock.verdict_title %}
+        <div style="
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            background-color: {{ stock.verdict_color }}15; /* 15 is hex for 8% opacity background */
+            border-left: 6px solid {{ stock.verdict_color }};
+            display: flex;
+            align-items: center;
+            gap: 15px;">
+            
+            <div style="font-size: 30px;">
+                {% if stock.verdict_color == '#e74c3c' %}⚠️
+                {% elif stock.verdict_color == '#2ecc71' %}🎯
+                {% else %}⚖️{% endif %}
+            </div>
+            
+            <div>
+                <h3 style="margin: 0 0 5px 0; color: {{ stock.verdict_color }}; font-weight: 800; text-transform: uppercase;">
+                    {{ stock.verdict_title }}
+                </h3>
+                <p style="margin: 0; color: #333; font-size: 15px; font-weight: 500;">
+                    {{ stock.verdict_msg }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
         {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}

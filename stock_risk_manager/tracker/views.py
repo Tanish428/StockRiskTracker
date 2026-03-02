@@ -159,18 +159,42 @@ def history(request):
 def dictionary(request):
     return render(request, 'dictionary.html')
 
+from django.core.cache import cache
+
 @login_required
 def report(request):
     # 1. Get Ticker from URL (e.g., /report/?ticker=RELIANCE.NS)
     ticker = request.GET.get('ticker', 'RELIANCE.NS').upper().strip()
 
     try:
-        # 2. Initialize API
-        stock = yf.Ticker(ticker)
-        
-        # We use .info to get the main data. 
-        # Note: Sometimes .info is slow, but it contains the 'longBusinessSummary' we need.
-        info = stock.info
+        # --- THE CACHE SHIELD ---
+        cache_key = f"stock_report_data_{ticker}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            print(f"DEBUG [REPORT]: Serving {ticker} from CACHE")
+            info = cached_data['info']
+            dates = cached_data['dates']
+            prices = cached_data['prices']
+        else:
+            print(f"DEBUG [REPORT]: Fetching {ticker} from YAHOO API")
+            stock = yf.Ticker(ticker)
+            
+            # The heaviest call in the library
+            info = stock.info 
+            
+            # Fetch History for Chart (1 Year)
+            hist = stock.history(period="1y")
+            dates = hist.index.strftime('%Y-%m-%d').tolist()
+            prices = hist['Close'].tolist()
+
+            # Save the heavy data to memory for 15 minutes (900 seconds)
+            cache.set(cache_key, {
+                'info': info,
+                'dates': dates,
+                'prices': prices
+            }, 900)
+        # ------------------------
 
         # 3. Check if valid (Current Price is usually missing for invalid stocks)
         if 'currentPrice' not in info:
@@ -187,7 +211,7 @@ def report(request):
             'name': info.get('longName', ticker),
             'current_price': info.get('currentPrice'),
             'currency': currency_code,
-            'currency_symbol': currency_symbol,  # <--- vital for display
+            'currency_symbol': currency_symbol,
             'summary': info.get('longBusinessSummary', 'No summary available.'),
             'market_cap': info.get('marketCap', 'N/A'),
             'high_52': info.get('fiftyTwoWeekHigh'),
@@ -196,14 +220,7 @@ def report(request):
             'target_price': info.get('targetMeanPrice', 'N/A'),
         }
 
-        # 6. Fetch History for Chart (1 Year)
-        hist = stock.history(period="1y")
-        
-        # Convert Timestamp index to string dates for Chart.js
-        dates = hist.index.strftime('%Y-%m-%d').tolist()
-        prices = hist['Close'].tolist()
-
-        # 7. Calculate Risk/Upside Logic manually
+        # 6. Calculate Upside Logic manually
         upside = 0
         if stock_data['target_price'] != 'N/A' and stock_data['current_price']:
             try:
@@ -213,12 +230,59 @@ def report(request):
         
         stock_data['upside'] = round(upside, 2)
 
+        # 7. THE BRAIN: Personalized Risk Assessment
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        user_risk_profile = profile.risk_category  # "Safe", "Risky", or "Neutral"
+
+        # Safely calculate Stock Volatility Proxy (52-week swing)
+        try:
+            high_52 = float(stock_data.get('high_52') or 0)
+            low_52 = float(stock_data.get('low_52') or 0)
+            
+            # Prevent Division by Zero
+            if low_52 > 0:
+                volatility_swing = ((high_52 - low_52) / low_52) * 100
+            else:
+                volatility_swing = 0
+        except (TypeError, ValueError):
+            volatility_swing = 0
+
+        # Determine inherent stock risk (Threshold: >40% swing is volatile)
+        stock_inherent_risk = "Risky" if volatility_swing > 60 else "Safe"
+
+        # The Compatibility Matrix (Handling all 3 states explicitly)
+        if user_risk_profile == "Safe":
+            if stock_inherent_risk == "Risky":
+                stock_data['verdict_title'] = "HIGH DANGER"
+                stock_data['verdict_msg'] = f"This stock's volatility ({round(volatility_swing)}% annual swing) violates your conservative risk profile."
+                stock_data['verdict_color'] = "#e74c3c" # Red
+            else:
+                stock_data['verdict_title'] = "STRONG MATCH"
+                stock_data['verdict_msg'] = f"Low volatility ({round(volatility_swing)}% swing). This stable asset aligns perfectly with your low-risk strategy."
+                stock_data['verdict_color'] = "#2ecc71" # Green
+                
+        elif user_risk_profile == "Risky":
+            if stock_inherent_risk == "Risky":
+                stock_data['verdict_title'] = "STRATEGIC MATCH"
+                stock_data['verdict_msg'] = f"High volatility detected ({round(volatility_swing)}% swing). This aligns with your aggressive growth strategy."
+                stock_data['verdict_color'] = "#2ecc71" # Green
+            else:
+                stock_data['verdict_title'] = "LOW VOLATILITY"
+                stock_data['verdict_msg'] = f"This is a safe asset ({round(volatility_swing)}% swing), but it may underperform your aggressive expectations."
+                stock_data['verdict_color'] = "#f39c12" # Orange
+                
+        else: # Fallback for "Neutral" or default users
+            stock_data['verdict_title'] = "NEUTRAL STANCE"
+            stock_data['verdict_msg'] = f"This stock has a {round(volatility_swing)}% annual swing. Please take the Risk Quiz to unlock personalized insights."
+            stock_data['verdict_color'] = "#3498db" # Blue
+
         context = {
             'stock': stock_data,
-            'chart_dates': json.dumps(dates),  # Pass as JSON string for JS
-            'chart_prices': json.dumps(prices) # Pass as JSON string for JS
+            'chart_dates': json.dumps(dates),
+            'chart_prices': json.dumps(prices)
         }
 
+        # THE MISSING LINK: Actually returning the rendered HTML to the user
         return render(request, 'report.html', context)
 
     except Exception as e:
