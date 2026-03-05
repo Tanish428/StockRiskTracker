@@ -2,7 +2,9 @@
 <html>
 <head>
     <title>Wallet | StockRiskTracker</title>
+
     {% load static %}
+
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/wallet.css' %}">
 </head>
@@ -11,21 +13,21 @@
 
 <div class="container">
 
-       <div class="sidebar">
+    <div class="sidebar">
         <div class="logo-section">
             <div class="logo">📈</div>
             <h2>StockRiskTracker</h2>
         </div>
 
-       <a href="{% url 'dashboard' %}">Dashboard</a>
-       <a href="#" class="active">Wallet</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="#" class="active">Wallet</a>
+        <a href="{% url 'watchlist' %}">Watchlist</a>
+        <a href="{% url 'investment_diary' %}">Investment Diary</a>
+        <a href="{% url 'history' %}">History</a>
+        <a href="{% url 'dictionary' %}">Dictionary</a>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
     </div>
-  
+
 
     <div class="main">
 
@@ -38,41 +40,59 @@
             <div class="balance">₹ {{ profile.wallet_balance }}</div>
         </div>
 
+
         <div class="wallet-actions">
 
-            <!-- Add Money Section -->
+            <!-- Deposit Section -->
             <div class="action-section">
-                <h3>💰 Add Money</h3>
+                <h3>💰 Deposit Money</h3>
+
                 <form method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="ADD">
-                    <div class="amount-buttons">
-                        <button type="submit" name="amount" value="1000" class="amount-btn">₹ 1,000</button>
-                        <button type="submit" name="amount" value="5000" class="amount-btn">₹ 5,000</button>
-                        <button type="submit" name="amount" value="10000" class="amount-btn">₹ 10,000</button>
-                        <button type="submit" name="amount" value="50000" class="amount-btn">₹ 50,000</button>
-                    </div>
+
+                    <input 
+                        type="text" 
+                        name="amount" 
+                        placeholder="Enter amount to deposit"
+                        class="wallet-input"
+                        required
+                    >
+
+                    <button type="submit" class="wallet-btn">
+                        Add Money
+                    </button>
                 </form>
             </div>
 
-            <!-- Withdraw Money Section -->
+
+            <!-- Withdraw Section -->
             <div class="action-section">
                 <h3>🏦 Withdraw Money</h3>
+
                 <form method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="WITHDRAW">
-                    <div class="amount-buttons">
-                        <button type="submit" name="amount" value="1000" class="amount-btn">₹ 1,000</button>
-                        <button type="submit" name="amount" value="5000" class="amount-btn">₹ 5,000</button>
-                        <button type="submit" name="amount" value="10000" class="amount-btn">₹ 10,000</button>
-                        <button type="submit" name="amount" value="50000" class="amount-btn">₹ 50,000</button>
-                    </div>
+
+                    <input 
+                        type="text" 
+                        name="amount" 
+                        placeholder="Enter amount to withdraw"
+                        class="wallet-input"
+                        required
+                    >
+
+                    <button type="submit" class="wallet-btn">
+                        Withdraw Money
+                    </button>
                 </form>
+
             </div>
 
         </div>
 
     </div>
+
 </div>
 
 </body>

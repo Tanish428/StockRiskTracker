@@ -133,12 +133,7 @@
         <section class="report-section">
             <h2>Executive Summary</h2>
             <div class="summary-grid">
-                <div class="summary-card">
-                    <span>Recommendation</span>
-                    <strong class="{% if stock.recommendation == 'BUY' %}safe{% else %}risky{% endif %}">
-                        {{ stock.recommendation }}
-                    </strong>
-                </div>
+            
                 <div class="summary-card">
                     <span>Target Price</span>
                     <strong>{{ stock.currency_symbol }} {{ stock.target_price }}</strong>
