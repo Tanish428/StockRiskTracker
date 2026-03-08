@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Stock Trading Dictionary</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/dictionary.css' %}">
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <div class="logo">📈</div>
+                <h2>StockRiskTracker</h2>
+            </div>
 
-        {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'wallet' %}">Wallet</a>
             <a href="{% url 'watchlist' %}">Watchlist</a>
@@ -25,138 +27,104 @@
             <a href="{% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
             <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        {% else %}
+            {% else %}
             <a href="{% url 'guest' %}">Dashboard</a>
             <a href="{% url 'watchlist' %}">Watchlist</a>
             <a href="{% url 'history' %}">History</a>
             <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
             <a href="{% url 'login' %}" class="logout-btn">Login</a>
-        {% endif %}
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main">
-
-        <!-- Header -->
-        <div class="header-top">
-            <h1>Stock Trading Dictionary</h1>
-            {% if user.is_authenticated %}
-            <div class="profile-section">
-                <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
-                <div class="profile-menu" id="profileMenu">
-                    <a href="{% url 'profile' %}">Profile</a>
-                    <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
-                </div>
-            </div>
-            {% else %}
-            <div class="profile-section" style="position:relative;">
-                <a href="#" id="guestDictProfileAvatar" onclick="toggleGuestDictMenu(event)"><img src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar"></a>
-                <div id="guestDictProfileMenu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #ddd; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-radius:6px; z-index:1000; min-width:140px; text-align:center;">
-                    <a href="{% url 'login' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#0b5ed7;color:#fff;border-radius:4px;text-decoration:none;">Login</a>
-                    <a href="{% url 'register' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#6c757d;color:#fff;border-radius:4px;text-decoration:none;">Sign Up</a>
-                </div>
-            </div>
             {% endif %}
-        </div>
+        </aside>
 
-        <!-- Search Box -->
-        <div class="search-box">
-            <input type="text" placeholder="Search trading term...">
-        </div>
+        <!-- Main Content -->
+        <main class="main">
 
-        <!-- Dictionary Cards -->
-        <div class="dictionary-grid">
-
-            <div class="dictionary-card">
-                <h3>Stock</h3>
-                <p>A stock represents ownership in a company and a claim on part of its assets and earnings.</p>
+            <!-- Header -->
+            <div class="header-top">
+                <h1>Stock Trading Dictionary</h1>
+                {% if user.is_authenticated %}
+                <div class="profile-section">
+                    <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar"
+                        id="profileBtn">
+                    <div class="profile-menu" id="profileMenu">
+                        <a href="{% url 'profile' %}">Profile</a>
+                        <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="profile-section" style="position:relative;">
+                    <a href="#" id="guestDictProfileAvatar" onclick="toggleGuestDictMenu(event)"><img
+                            src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar"></a>
+                    <div id="guestDictProfileMenu"
+                        style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #ddd; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-radius:6px; z-index:1000; min-width:140px; text-align:center;">
+                        <a href="{% url 'login' %}"
+                            style="display:inline-block;margin:6px 0;padding:8px 12px;background:#0b5ed7;color:#fff;border-radius:4px;text-decoration:none;">Login</a>
+                        <a href="{% url 'register' %}"
+                            style="display:inline-block;margin:6px 0;padding:8px 12px;background:#6c757d;color:#fff;border-radius:4px;text-decoration:none;">Sign
+                            Up</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
-            <div class="dictionary-card">
-                <h3>Share</h3>
-                <p>A single unit of ownership in a company’s stock.</p>
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="Search trading term...">
             </div>
 
-            <div class="dictionary-card">
-                <h3>Bull Market</h3>
-                <p>A market condition where prices are rising or expected to rise.</p>
+            <!-- Dictionary Cards -->
+            <div class="dictionary-grid">
+
+                {% for item in terms %}
+                <div class="dictionary-card">
+                    <h3>{{ item.term }}</h3>
+                    <p>{{ item.meaning }}</p>
+                </div>
+                {% empty %}
+                <p>No dictionary terms available.</p>
+                {% endfor %}
+
             </div>
 
-            <div class="dictionary-card">
-                <h3>Bear Market</h3>
-                <p>A market condition where prices are falling or expected to fall.</p>
-            </div>
+        </main>
+    </div>
 
-            <div class="dictionary-card">
-                <h3>Volatility</h3>
-                <p>The degree of variation in trading prices over a period of time.</p>
-            </div>
+    <script>
+        // Profile menu toggle (only if elements exist)
+        const profileBtn = document.getElementById('profileBtn');
+        const profileMenu = document.getElementById('profileMenu');
+        if (profileBtn && profileMenu) {
+            profileBtn.addEventListener('click', function () {
+                profileMenu.classList.toggle('active');
+            });
 
-            <div class="dictionary-card">
-                <h3>Liquidity</h3>
-                <p>The ease with which an asset can be bought or sold without affecting its price.</p>
-            </div>
+            // Close menu when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.profile-section')) {
+                    profileMenu.classList.remove('active');
+                }
+            });
+        }
 
-            <div class="dictionary-card">
-                <h3>Market Capitalization</h3>
-                <p>The total value of a company’s outstanding shares.</p>
-            </div>
+        // Guest dictionary profile menu toggle
+        function toggleGuestDictMenu(e) {
+            e.preventDefault();
+            const menu = document.getElementById('guestDictProfileMenu');
+            if (!menu) return;
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
 
-            <div class="dictionary-card">
-                <h3>Portfolio</h3>
-                <p>A collection of financial investments like stocks, bonds, and cash.</p>
-            </div>
-
-            <div class="dictionary-card">
-                <h3>Stop Loss</h3>
-                <p>An order placed to sell a stock when it reaches a specific price to limit losses.</p>
-            </div>
-
-            <div class="dictionary-card">
-                <h3>Dividend</h3>
-                <p>A portion of company profits distributed to shareholders.</p>
-            </div>
-
-        </div>
-
-    </main>
-</div>
-
-<script>
-    // Profile menu toggle (only if elements exist)
-    const profileBtn = document.getElementById('profileBtn');
-    const profileMenu = document.getElementById('profileMenu');
-    if (profileBtn && profileMenu) {
-        profileBtn.addEventListener('click', function() {
-            profileMenu.classList.toggle('active');
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.profile-section')) {
-                profileMenu.classList.remove('active');
+        // Close guest dict menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('guestDictProfileMenu');
+            const avatar = document.getElementById('guestDictProfileAvatar');
+            if (!menu || !avatar) return;
+            if (menu.style.display === 'block' && !menu.contains(event.target) && !avatar.contains(event.target)) {
+                menu.style.display = 'none';
             }
         });
-    }
-
-    // Guest dictionary profile menu toggle
-    function toggleGuestDictMenu(e) {
-        e.preventDefault();
-        const menu = document.getElementById('guestDictProfileMenu');
-        if (!menu) return;
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-    }
-
-    // Close guest dict menu when clicking outside
-    document.addEventListener('click', function(event) {
-        const menu = document.getElementById('guestDictProfileMenu');
-        const avatar = document.getElementById('guestDictProfileAvatar');
-        if (!menu || !avatar) return;
-        if (menu.style.display === 'block' && !menu.contains(event.target) && !avatar.contains(event.target)) {
-            menu.style.display = 'none';
-        }
-    });
-</script>
+    </script>
 
 </body>
+
 </html>

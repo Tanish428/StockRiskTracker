@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# 1. EXTENDED USER PROFILE (Wallet & Risk Score)
+# 1. USER PROFILE (Wallet & Risk Score)
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     risk_score = models.IntegerField(default=0)
@@ -34,7 +34,8 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"{self.ticker} ({self.user.username})"
-    
+
+# 4. DIARY NOTES
 class DiaryNote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
@@ -43,3 +44,10 @@ class DiaryNote(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Dictionary(models.Model):
+    term = models.CharField(max_length=200, blank=False, null=False)
+    meaning = models.TextField(blank=False, null=False)
+
+    def __str__(self):
+        return self.term

@@ -11,8 +11,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.core.cache import cache
+from .models import Dictionary
 
-# Local imports from your app
+# Local imports from my app
 from .models import Profile, Transaction, Watchlist, DiaryNote
 from .services import get_live_inr_price
 from .forms import UpdateProfileForm
@@ -53,18 +54,26 @@ def register(request):
 
 def login(request):
     """Standard login logic."""
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
 
+        # user found and credentials correct
         if user is not None:
             auth_login(request, user)
-            return redirect('dashboard')
+
+            # check if admin
+            if user.is_superuser:
+                return redirect('admin_dashboard')
+            else:
+                return redirect('dashboard')
+
         else:
             messages.error(request, "Invalid username or password")
-            
+
     return render(request, 'login.html')
 
 def logout(request):
@@ -121,7 +130,7 @@ def dashboard(request):
     user_profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        ticker = request.POST.get('ticker').upper().strip()
+        ticker = request.POST.get('ticker').upper().strip() #standardizes the stock symbol.(reliance.nse -> RELIANCE.NS)
 
         # Sanitize Quantity
         try:
@@ -186,6 +195,7 @@ def sell_stock(request):
             messages.error(request, "Invalid quantity.")
             return redirect(f"{reverse('report')}?ticker={ticker}")
 
+        #This fetches the current user's profile from the database.
         profile = Profile.objects.get(user=request.user)
 
         # Verify Ownership (Total Buy - Total Sell)
@@ -319,7 +329,6 @@ def report(request):
             'market_cap': info.get('marketCap', 'N/A'),
             'high_52': info.get('fiftyTwoWeekHigh'),
             'low_52': info.get('fiftyTwoWeekLow'),
-            'recommendation': info.get('recommendationKey', 'hold').upper(),
             'target_price': info.get('targetMeanPrice', 'N/A'),
         }
 
@@ -498,3 +507,87 @@ def delete_note(request, note_id):
     note = get_object_or_404(DiaryNote, id=note_id, user=request.user)
     note.delete()
     return redirect('investment_diary')
+
+@login_required
+def admin_dashboard(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')   # normal users go to normal dashboard
+    
+    return render(request, 'admin_dashboard.html')
+
+@login_required
+def manage_users(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    users = User.objects.all()
+
+    return render(request, 'manage_users.html', {'users': users})
+
+@login_required
+def manage_dictionary(request):
+
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    if request.method == "POST":
+        term = request.POST.get('term')
+        meaning = request.POST.get('meaning')
+
+        # prevent empty fields
+        if term and meaning:
+            Dictionary.objects.create(term=term, meaning=meaning)
+
+    terms = Dictionary.objects.all()
+
+    return render(request, 'manage_dictionary.html', {'terms': terms})
+
+@login_required
+def delete_term(request, term_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    term = get_object_or_404(Dictionary, id=term_id)
+    term.delete()
+
+    return redirect('manage_dictionary')
+
+def dictionary(request):
+    terms = Dictionary.objects.all().order_by('term')
+    return render(request, 'dictionary.html', {'terms': terms})
+
+@login_required
+def update_term(request, term_id):
+
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    term_obj = get_object_or_404(Dictionary, id=term_id)
+
+    if request.method == "POST":
+        term = request.POST.get('term')
+        meaning = request.POST.get('meaning')
+
+        if term and meaning:
+            term_obj.term = term
+            term_obj.meaning = meaning
+            term_obj.save()
+
+            return redirect('manage_dictionary')
+
+    return render(request, 'update_dictionary.html', {'term': term_obj})
+
+@login_required
+def delete_user(request, user_id):
+
+    # only admin allowed
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    user = get_object_or_404(User, id=user_id)
+
+    # prevent admin from deleting himself
+    if user.id != request.user.id:
+        user.delete()
+
+    return redirect('manage_users')

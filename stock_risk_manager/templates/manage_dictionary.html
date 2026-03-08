@@ -1,0 +1,46 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<h2>Dictionary Management</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="term" placeholder="Term" required>
+    <input type="text" name="meaning" placeholder="Meaning" required>
+    <button type="submit">Add Term</button>
+</form>
+
+<hr>
+
+<table border="1">
+
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+<th>Actions</th>
+</tr>
+
+{% for t in terms %}
+<tr>
+
+<td>{{ t.term }}</td>
+<td>{{ t.meaning }}</td>
+
+<td>
+<a href="{% url 'update_term' t.id %}">
+<button>Edit</button>
+</a>
+
+<a href="{% url 'delete_term' t.id %}">
+<button style="background:red;color:white;">Delete</button>
+</a>
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+<br><br>
+<a href="{% url 'admin_dashboard' %}">
+    <button>Back to Admin Dashboard</button>
+</a>

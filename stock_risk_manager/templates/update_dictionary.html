@@ -1,0 +1,21 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<h2>Update Dictionary Term</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<input type="text" name="term" value="{{ term.term }}" required>
+
+<input type="text" name="meaning" value="{{ term.meaning }}" required>
+
+<button type="submit">Update</button>
+
+</form>
+
+<br>
+
+<a href="{% url 'manage_dictionary' %}">
+<button>Back</button>
+</a>

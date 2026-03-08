@@ -25,6 +25,11 @@ urlpatterns = [
     path('watchlist/add/', views.add_to_watchlist, name='add_to_watchlist'),
     path('watchlist/remove/<int:item_id>/', views.remove_from_watchlist, name='remove_from_watchlist'),
     path('update-profile/', views.update_profile, name='update_profile'),
-    path('reset-account/', views.reset_account, name='reset_account'),
-    
+    path('reset-account/', views.reset_account, name='reset_account'),   
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('manage-users/', views.manage_users, name='manage_users'),
+    path('manage-dictionary/', views.manage_dictionary, name='manage_dictionary'),
+    path('update-term/<int:term_id>/', views.update_term, name='update_term'),
+    path('delete-term/<int:term_id>/', views.delete_term, name='delete_term'),
+    path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
 ]
