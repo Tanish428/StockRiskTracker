@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from ..models import Transaction, Dictionary, Profile
+from ..models import Transaction, Dictionary, Profile, QuizQuestion
 
 def index(request):
     return render(request, 'index.html')
@@ -24,7 +24,9 @@ def quiz(request):
         messages.success(request, f"Profile Updated! You are a {category} investor.")
         return redirect('dashboard')
 
-    return render(request, 'quiz.html')
+    # Get 3 random questions from database
+    questions = QuizQuestion.objects.order_by('?')[:3]
+    return render(request, 'quiz.html', {'questions': questions})
 
 def history(request):
     """Displays all past transactions."""

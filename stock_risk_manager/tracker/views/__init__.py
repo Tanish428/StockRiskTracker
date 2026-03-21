@@ -18,7 +18,7 @@ __all__ = [
     # Diary views
     'investment_diary', 'add_note', 'edit_note', 'delete_note',
     # Admin views
-    'admin_dashboard', 'manage_users', 'manage_dictionary', 'delete_term', 'update_term', 'delete_user',
+    'admin_dashboard', 'manage_users', 'manage_dictionary', 'delete_term', 'update_term', 'delete_user', 'manage_quiz', 'delete_quiz_question', 'update_quiz_question',
     # Misc views
     'index', 'guest', 'quiz', 'history', 'dictionary'
 ]

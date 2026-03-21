@@ -1,0 +1,17 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<h2>Update Quiz Question</h2>
+
+<form method="POST">
+{% csrf_token %}
+<input type="text" name="question" value="{{ question.question }}" placeholder="Question" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+<input type="text" name="option1" value="{{ question.option1 }}" placeholder="Option 1 (Safest - 1 point)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+<input type="text" name="option2" value="{{ question.option2 }}" placeholder="Option 2 (Medium - 2 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+<input type="text" name="option3" value="{{ question.option3 }}" placeholder="Option 3 (Riskiest - 3 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+<button type="submit">Update Question</button>
+</form>
+
+<br>
+<a href="{% url 'manage_quiz' %}">
+<button>Back to Quiz Management</button>
+</a>

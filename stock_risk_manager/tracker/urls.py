@@ -32,4 +32,7 @@ urlpatterns = [
     path('update-term/<int:term_id>/', views.update_term, name='update_term'),
     path('delete-term/<int:term_id>/', views.delete_term, name='delete_term'),
     path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    path('manage-quiz/', views.manage_quiz, name='manage_quiz'),
+    path('delete-quiz-question/<int:question_id>/', views.delete_quiz_question, name='delete_quiz_question'),
+    path('update-quiz-question/<int:question_id>/', views.update_quiz_question, name='update_quiz_question'),
 ]

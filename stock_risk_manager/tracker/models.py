@@ -51,3 +51,13 @@ class Dictionary(models.Model):
 
     def __str__(self):
         return self.term
+
+# Quiz Questions Model
+class QuizQuestion(models.Model):
+    question = models.TextField()
+    option1 = models.CharField(max_length=200)  # 1 point (safest)
+    option2 = models.CharField(max_length=200)  # 2 points (medium)
+    option3 = models.CharField(max_length=200)  # 3 points (riskiest)
+
+    def __str__(self):
+        return self.question[:50]

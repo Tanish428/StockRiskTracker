@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from ..models import Dictionary
+from ..models import Dictionary, QuizQuestion
 
 @login_required
 def admin_dashboard(request):
@@ -82,3 +82,60 @@ def delete_user(request, user_id):
         user.delete()
 
     return redirect('manage_users')
+
+@login_required
+def manage_quiz(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    if request.method == "POST":
+        question = request.POST.get('question')
+        option1 = request.POST.get('option1')
+        option2 = request.POST.get('option2')
+        option3 = request.POST.get('option3')
+
+        # prevent empty fields
+        if question and option1 and option2 and option3:
+            QuizQuestion.objects.create(
+                question=question,
+                option1=option1,
+                option2=option2,
+                option3=option3
+            )
+
+    questions = QuizQuestion.objects.all()
+    return render(request, 'manage_quiz.html', {'questions': questions})
+
+@login_required
+def delete_quiz_question(request, question_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    question = get_object_or_404(QuizQuestion, id=question_id)
+    question.delete()
+
+    return redirect('manage_quiz')
+
+@login_required
+def update_quiz_question(request, question_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    question_obj = get_object_or_404(QuizQuestion, id=question_id)
+
+    if request.method == "POST":
+        question = request.POST.get('question')
+        option1 = request.POST.get('option1')
+        option2 = request.POST.get('option2')
+        option3 = request.POST.get('option3')
+
+        if question and option1 and option2 and option3:
+            question_obj.question = question
+            question_obj.option1 = option1
+            question_obj.option2 = option2
+            question_obj.option3 = option3
+            question_obj.save()
+
+            return redirect('manage_quiz')
+
+    return render(request, 'update_quiz.html', {'question': question_obj})

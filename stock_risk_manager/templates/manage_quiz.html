@@ -1,0 +1,46 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<h2>Quiz Questions Management</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="question" placeholder="Question" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+    <input type="text" name="option1" placeholder="Option 1 (Safest - 1 point)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+    <input type="text" name="option2" placeholder="Option 2 (Medium - 2 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+    <input type="text" name="option3" placeholder="Option 3 (Riskiest - 3 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
+    <button type="submit">Add Question</button>
+</form>
+
+<hr>
+
+<table border="1">
+<tr>
+<th>Question</th>
+<th>Option 1 (1 pt)</th>
+<th>Option 2 (2 pts)</th>
+<th>Option 3 (3 pts)</th>
+<th>Actions</th>
+</tr>
+
+{% for q in questions %}
+<tr>
+<td>{{ q.question }}</td>
+<td>{{ q.option1 }}</td>
+<td>{{ q.option2 }}</td>
+<td>{{ q.option3 }}</td>
+<td>
+<a href="{% url 'update_quiz_question' q.id %}">
+<button>Edit</button>
+</a>
+<a href="{% url 'delete_quiz_question' q.id %}">
+<button style="background:red;color:white;">Delete</button>
+</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<br><br>
+<a href="{% url 'admin_dashboard' %}">
+    <button>Back to Admin Dashboard</button>
+</a>
