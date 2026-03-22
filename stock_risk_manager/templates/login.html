@@ -3,7 +3,9 @@
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% if messages %}
     {% for message in messages %}
-        <p style="color: red; text-align: center;">{{ message }}</p>
+        {% if 'login' in message.tags %}
+            <div class="alert">{{ message }}</div>
+        {% endif %}
     {% endfor %}
 {% endif %}
 
