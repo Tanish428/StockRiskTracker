@@ -5,6 +5,7 @@ from .views import dashboard
 urlpatterns = [
 
     path('register/', views.register, name='register'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('guest/', views.guest, name='guest'),

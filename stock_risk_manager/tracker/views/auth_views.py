@@ -7,55 +7,60 @@ from ..models import Profile
 from ..forms import UpdateProfileForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-
+from django.core.mail import send_mail
+from ..utils import generate_otp
 
 def register(request):
-    """Handles secure user registration"""
-
     if request.method == "POST":
         username = request.POST.get('username').strip()
         email = request.POST.get('email').strip()
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # 1️⃣ Check empty fields
-        if not username or not email or not password or not confirm_password:
-            messages.error(request, "All fields are required", extra_tags="register")
+        # ✅ VALIDATION
+        if not username or not email or not password:
+            messages.error(request, "All fields are required")
             return render(request, 'register.html')
-        # 2️⃣ Password match check
+
         if password != confirm_password:
-            messages.error(request, "Passwords do not match", extra_tags="register")
+            messages.error(request, "Passwords do not match")
             return render(request, 'register.html')
-        # 3️⃣ Username already exists
+
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken", extra_tags="register")
+            messages.error(request, "Username already exists")
             return render(request, 'register.html')
-        # 4️⃣ Email already exists
+
         if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered", extra_tags="register")
+            messages.error(request, "Email already registered")
             return render(request, 'register.html')
-        # 5️⃣ Strong password validation (VERY IMPORTANT)
+
         try:
             validate_password(password)
         except ValidationError as e:
             for error in e.messages:
-                messages.error(request, error, extra_tags="register")
+                messages.error(request, error)
             return render(request, 'register.html')
-        # 6️⃣ Create User (password automatically hashed)
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
+
+        # ✅ GENERATE OTP
+        otp = generate_otp()
+
+        # ✅ STORE IN SESSION
+        request.session['register_data'] = {
+            'username': username,
+            'email': email,
+            'password': password
+        }
+        request.session['otp'] = otp
+
+        # ✅ SEND OTP (console)
+        send_mail(
+            'OTP Verification',
+            f'Your OTP is {otp}',
+            'test@gmail.com',
+            [email],
         )
 
-        # 7️⃣ Create Profile with wallet
-        Profile.objects.create(user=user, wallet_balance=10000.00)
-
-        # 8️⃣ Auto login
-        auth_login(request, user)
-
-        messages.success(request, "Account created! Let's check your risk profile.")
-        return redirect('quiz')
+        return redirect('verify_otp')
 
     return render(request, 'register.html')
 
@@ -154,3 +159,34 @@ def update_profile(request):
         return redirect("profile")
 
     return render(request, "update_profile.html")
+
+
+def verify_otp(request):
+    if request.method == "POST":
+        user_otp = request.POST.get('otp')
+        session_otp = request.session.get('otp')
+
+        if str(user_otp) == str(session_otp):
+
+            data = request.session.get('register_data')
+
+            user = User.objects.create_user(
+                username=data['username'],
+                email=data['email'],
+                password=data['password']
+            )
+
+            Profile.objects.create(user=user, wallet_balance=10000)
+
+            auth_login(request, user)
+
+            # ✅ DO NOT FLUSH SESSION
+            del request.session['otp']
+            del request.session['register_data']
+
+            return redirect('quiz')
+
+        else:
+            messages.error(request, "Invalid OTP")
+
+    return render(request, 'verify_otp.html')
