@@ -68,3 +68,75 @@ def remove_from_watchlist(request, item_id):
     except Watchlist.DoesNotExist:
         messages.error(request, "Item not found.")
     return redirect('watchlist')
+
+import json
+from django.http import JsonResponse
+from ..services import optimize_portfolio
+
+@login_required
+def optimize_portfolio_api(request):
+    """API endpoint to run 0/1 Knapsack portfolio optimization."""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            capital = data.get('capital')
+            tickers = data.get('tickers', [])
+            
+            if not capital or not tickers:
+                return JsonResponse({"error": "Missing capital or tickers"}, status=400)
+                
+            stocks_data = []
+            
+            if tickers:
+                tickers_string = " ".join(tickers)
+                batch_data = yf.Tickers(tickers_string)
+                for ticker in tickers:
+                    try:
+                        stock = batch_data.tickers[ticker]
+                        current_price = stock.fast_info.last_price
+                        
+                        # info can be slow, but required for targetMeanPrice
+                        info = stock.info
+                        target_price = info.get('targetMeanPrice')
+                        
+                        # Currency conversion to INR
+                        try:
+                            currency = stock.fast_info.currency.upper()
+                        except AttributeError:
+                            currency = info.get('currency', 'INR').upper()
+                            
+                        exchange_rate = 1.0
+                        if currency == 'USD':
+                            from django.core.cache import cache
+                            cached_rate = cache.get('USD_INR_RATE')
+                            if cached_rate:
+                                exchange_rate = float(cached_rate)
+                            else:
+                                forex = yf.Ticker("INR=X")
+                                exchange_rate = float(forex.fast_info.last_price)
+                                cache.set('USD_INR_RATE', exchange_rate, 300)
+                                
+                        current_price = current_price * exchange_rate
+                        
+                        # Fallback if no target is provided by analysts:
+                        if target_price is None:
+                            target_price = current_price * 1.10 # 10% default target
+                        else:
+                            target_price = target_price * exchange_rate
+                            
+                        if current_price and target_price:
+                            stocks_data.append({
+                                'symbol': ticker,
+                                'price': round(current_price, 2),
+                                'target': round(target_price, 2)
+                            })
+                    except Exception as e:
+                        print(f"Error fetching data for {ticker}: {e}")
+            
+            result = optimize_portfolio(capital, stocks_data)
+            return JsonResponse(result)
+            
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+            
+    return JsonResponse({"error": "Invalid method"}, status=405)
