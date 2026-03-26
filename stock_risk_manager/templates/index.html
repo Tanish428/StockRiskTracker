@@ -1,208 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard | StockRiskTracker</title>
+{% block title %}Dashboard | StockRiskTracker{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <style>
-        /* Specific Styles for the Search Bar */
-        .search-container {
-            margin-bottom: 25px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .search-input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        .search-input:focus {
-            border-color: #1f3c88;
-            outline: none;
-        }
-        .search-btn {
-            padding: 12px 25px;
-            background-color: #1f3c88;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .search-btn:hover {
-            background-color: #162a60;
-        }
-        /* Dynamic Text Colors */
-        .safe-text { color: #2ecc71; }
-        .risky-text { color: #e74c3c; }
-        .neutral-text { color: #95a5a6; }
-    </style>
-</head>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
 
-<body>
+{% block page_title %}{% endblock %}
 
-    <div class="container">
+{% block content %}
 
-        <div class="sidebar">
-            <div class="logo-section">
-                <div class="logo">📈</div>
-                <h2>StockRiskTracker</h2>
-            </div>
-            <a href="#" class="active">Dashboard</a>
-            <a href="{% url 'wallet' %}">Wallet</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+<!-- ========= HERO SECTION & FULL PAGE BG ========= -->
+<div class="hero-bg"></div>
+<div class="hero-overlay"></div>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">⚡ Live Risk Intelligence</div>
+        <h1 class="hero-title">Track Smarter.<br>Invest Safer.</h1>
+        <p class="hero-sub">Analyze any stock's risk profile instantly. Search by ticker symbol below.</p>
+
+        <form class="hero-search" action="{% url 'report' %}" method="GET">
+            <input
+                type="text"
+                name="ticker"
+                class="hero-search-input"
+                placeholder="Enter symbol — e.g. RELIANCE.NS, AAPL, TCS.NS ..."
+                required
+                autocomplete="off"
+            >
+            <button type="submit" class="hero-search-btn">🔍 Analyze</button>
+        </form>
+    </div>
+</section>
+
+<!-- ========= STAT CARDS ========= -->
+<div class="stats-row">
+    <a href="{% url 'wallet' %}" class="stat-card card-wallet">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <span class="stat-label">Virtual Wallet</span>
+            <span class="stat-value">₹ {{ wallet_balance }}</span>
         </div>
+        <div class="stat-arrow">→</div>
+    </a>
 
-        <div class="main">
-            
-            <div class="header-top">
-                {% if messages %}
-                <div class="messages-container" style="margin-bottom: 20px;">
-                {% for message in messages %}
-                        <div style="
-                            padding: 15px; 
-                            border-radius: 8px; 
-                            color: white; 
-                            font-weight: bold; 
-                            background-color: {% if message.tags == 'error' %}#e74c3c{% else %}#2ecc71{% endif %};
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-                <h1>Dashboard</h1>
-                <div class="profile-section">
-                    <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar" id="profileBtn">
-                    <div class="profile-menu" id="profileMenu">
-                        <a href="{% url 'profile' %}">Profile</a>
-                        <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="search-container">
-                <div style="flex-grow: 1;">
-                    <h3 style="margin-bottom: 10px; color: #333;">Find a Stock</h3>
-                    <form action="{% url 'report' %}" method="GET" style="display: flex; gap: 10px;">
-                        <input 
-                            type="text" 
-                            name="ticker" 
-                            class="search-input" 
-                            placeholder="Enter symbol (e.g. RELIANCE.NS, AAPL, TATAMOTORS.NS)..." 
-                            required
-                        >
-                        <button type="submit" class="search-btn">Search & Analyze</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="top-info">
-                <!-- <div class="wallet-box">
-                    <div class="wallet-label">Wallet Balance</div>
-                    <div class="wallet-amount">₹ {{ profile.wallet_balance }}</div>
-                </div> -->
-                <a href="{% url 'wallet' %}" class="card-link">
-                <div class="card">
-                <h3>Virtual Wallet</h3>
-                 <p>₹ {{ wallet_balance }}</p>
-                </div>
-                </a>
-
-
-                <div class="user-risk-box">
-                    <div class="risk-logo-wrap">
-                        <img src="{% if profile.risk_category == 'Safe' %}{% static 'image/Safe-logo.png' %}{% elif profile.risk_category == 'Risky' %}{% static 'image/Risky-logo.png' %}{% else %}{% static 'image/profile.jpg' %}{% endif %}" alt="Risk Logo" class="risk-logo">
-                    </div>
-                    <div class="user-risk-center">
-                        <div class="user-risk-info">
-                            <h4>Risk Status</h4>
-                            <div class="user-risk-status {% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
-                                {{ profile.risk_category|default:"Neutral" }} Investor
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="watchlist">
-                <h3>Popular Stocks</h3>
-
-                <div class="stock-cards-horizontal">
-                    <div class="stock-card safe" onclick="goToReport('RELIANCE.NS')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
-                            <h4>Reliance</h4>
-                        </div>
-                        <p class="price">₹ 2,456.80</p>
-                        <p class="status">SAFE</p>
-                    </div>
-
-                    <div class="stock-card risky" onclick="goToReport('ADANIPOWER.NS')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
-                            <h4>Adani Power</h4>
-                        </div>
-                        <p class="price">₹ 312.40</p>
-                        <p class="status">RISKY</p>
-                    </div>
-
-                    <div class="stock-card safe" onclick="goToReport('TCS.NS')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
-                            <h4>TCS</h4>
-                        </div>
-                        <p class="price">₹ 3,340.00</p>
-                        <p class="status">SAFE</p>
-                    </div>
-                </div>
-
-            </div>
-
+    <div class="stat-card card-risk">
+        <div class="stat-icon">
+            <img src="{% if profile.risk_category == 'Safe' %}{% static 'image/Safe-logo.png' %}{% elif profile.risk_category == 'Risky' %}{% static 'image/Risky-logo.png' %}{% else %}{% static 'image/profile.jpg' %}{% endif %}" alt="Risk" class="risk-mini-logo">
         </div>
-
+        <div class="stat-info">
+            <span class="stat-label">⚡ Risk Status</span>
+            <span class="stat-value {% if profile.risk_category == 'Safe' %}safe-text{% elif profile.risk_category == 'Risky' %}risky-text{% else %}neutral-text{% endif %}">
+                {{ profile.risk_category|default:"Neutral" }} Investor
+            </span>
+        </div>
     </div>
 
-    <script>
-        // Profile menu toggle
-        const profileBtn = document.getElementById('profileBtn');
-        const profileMenu = document.getElementById('profileMenu');
+    <a href="{% url 'watchlist' %}" class="stat-card card-watchlist">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+            <span class="stat-label">Watchlist</span>
+            <span class="stat-value">View All</span>
+        </div>
+        <div class="stat-arrow">→</div>
+    </a>
 
-        if(profileBtn) {
-            profileBtn.addEventListener('click', function() {
-                profileMenu.classList.toggle('active');
-            });
-        }
+    <a href="{% url 'history' %}" class="stat-card card-history">
+        <div class="stat-icon">🕒</div>
+        <div class="stat-info">
+            <span class="stat-label">Trade History</span>
+            <span class="stat-value">View All</span>
+        </div>
+        <div class="stat-arrow">→</div>
+    </a>
+</div>
 
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.profile-section')) {
-                if(profileMenu) profileMenu.classList.remove('active');
-            }
-        });
+<!-- ========= POPULAR STOCKS ========= -->
+<div class="section-header">
+    <h2 class="section-title"><span class="dot-accent"></span> Popular Stocks</h2>
+    <a href="{% url 'watchlist' %}" class="see-all">See all →</a>
+</div>
 
-        // Navigate to report page with the correct API query param
-        function goToReport(tickerSymbol) {
-            // CHANGED: Uses 'ticker=' to match your views.py logic
-            window.location.href = '{% url "report" %}?ticker=' + encodeURIComponent(tickerSymbol);
-        }
-    </script>
+<div class="stock-grid">
+    <div class="stock-card safe" onclick="goToReport('RELIANCE.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
+            <div>
+                <h4>Reliance</h4>
+                <small class="ticker-text">RELIANCE.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 2,456.80</p>
+        <span class="status-badge safe-badge">● SAFE</span>
+    </div>
 
-</body>
-</html>
+    <div class="stock-card risky" onclick="goToReport('ADANIPOWER.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
+            <div>
+                <h4>Adani Power</h4>
+                <small class="ticker-text">ADANIPOWER.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 312.40</p>
+        <span class="status-badge risky-badge">● RISKY</span>
+    </div>
+
+    <div class="stock-card safe" onclick="goToReport('TCS.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
+            <div>
+                <h4>TCS</h4>
+                <small class="ticker-text">TCS.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 3,340.00</p>
+        <span class="status-badge safe-badge">● SAFE</span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function goToReport(tickerSymbol) {
+    window.location.href = '{% url "report" %}?ticker=' + encodeURIComponent(tickerSymbol);
+}
+</script>
+{% endblock %}

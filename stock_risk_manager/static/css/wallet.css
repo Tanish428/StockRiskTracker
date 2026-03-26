@@ -1,24 +1,32 @@
-.wallet-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ddd;
-    font-size:16px;
+/* Wallet-specific input and button overrides for dark theme */
+/* (full layout handled by index.css shared sidebar styles) */
+
+.wallet-input {
+  width: 100%; padding: 13px 16px; margin-top: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #f1f5f9;
+  font-size: 15px; font-family: 'Inter', sans-serif;
+  outline: none; transition: all 0.25s;
+}
+.wallet-input::placeholder { color: rgba(148,163,184,0.5); }
+.wallet-input:focus {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.06);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
 }
 
-.wallet-btn{
-    margin-top:12px;
-    width:100%;
-    padding:12px;
-    background:#1f3c88;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
+.wallet-btn {
+  margin-top: 14px; width: 100%; padding: 13px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: white; border: none; border-radius: 10px;
+  cursor: pointer; font-weight: 700; font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.35);
 }
-
-.wallet-btn:hover{
-    background:#162f6b;
+.wallet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99,102,241,0.4);
 }

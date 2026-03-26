@@ -1,130 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Stock Trading Dictionary</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/dictionary.css' %}">
-</head>
+{% block title %}Stock Dictionary | StockRiskTracker{% endblock %}
+{% block nav_dictionary %}active{% endblock %}
+{% block nav_dictionary_g %}active{% endblock %}
 
-<body>
+{% block page_title %}📚 Stock Dictionary{% endblock %}
 
-    <div class="container">
+{% block extra_css %}
+<style>
+.search-bar {
+  width: 100%; padding: 15px 20px; margin-bottom: 30px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 50px; color: var(--text-primary);
+  font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+  transition: var(--transition); box-shadow: var(--shadow-card);
+}
+.search-bar::placeholder { color: var(--text-muted); }
+.search-bar:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo-section">
-                <div class="logo">📈</div>
-                <h2>StockRiskTracker</h2>
-            </div>
+.dict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; }
 
-            {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'wallet' %}">Wallet</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-            {% else %}
-            <a href="{% url 'guest' %}">Dashboard</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}" class="active">Dictionary</a>
-            <a href="{% url 'login' %}" class="logout-btn">Login</a>
-            {% endif %}
-        </aside>
+.dict-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px 24px 24px 30px;
+  box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+  transition: var(--transition);
+}
+.dict-card::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  border-radius: 4px 0 0 4px;
+}
+.dict-card:hover { border-color: var(--border-accent); transform: translateY(-4px); box-shadow: var(--shadow-card), 0 0 24px var(--accent-glow); }
+.dict-card h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+.dict-card p  { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
 
-        <!-- Main Content -->
-        <main class="main">
+@media (max-width: 540px) { .dict-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
-            <!-- Header -->
-            <div class="header-top">
-                <h1>Stock Trading Dictionary</h1>
-                {% if user.is_authenticated %}
-                <div class="profile-section">
-                    <img src="{% static 'image/profile.jpg' %}" alt="User Profile" class="profile-avatar"
-                        id="profileBtn">
-                    <div class="profile-menu" id="profileMenu">
-                        <a href="{% url 'profile' %}">Profile</a>
-                        <a href="{% url 'logout' %}" class="menu-logout">Logout</a>
-                    </div>
-                </div>
-                {% else %}
-                <div class="profile-section" style="position:relative;">
-                    <a href="#" id="guestDictProfileAvatar" onclick="toggleGuestDictMenu(event)"><img
-                            src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar"></a>
-                    <div id="guestDictProfileMenu"
-                        style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #ddd; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-radius:6px; z-index:1000; min-width:140px; text-align:center;">
-                        <a href="{% url 'login' %}"
-                            style="display:inline-block;margin:6px 0;padding:8px 12px;background:#0b5ed7;color:#fff;border-radius:4px;text-decoration:none;">Login</a>
-                        <a href="{% url 'register' %}"
-                            style="display:inline-block;margin:6px 0;padding:8px 12px;background:#6c757d;color:#fff;border-radius:4px;text-decoration:none;">Sign
-                            Up</a>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+{% block content %}
+<input type="text" id="searchBar" class="search-bar" placeholder="🔍  Search trading terms...">
 
-            <!-- Search Box -->
-            <div class="search-box">
-                <input type="text" placeholder="Search trading term...">
-            </div>
-
-            <!-- Dictionary Cards -->
-            <div class="dictionary-grid">
-
-                {% for item in terms %}
-                <div class="dictionary-card">
-                    <h3>{{ item.term }}</h3>
-                    <p>{{ item.meaning }}</p>
-                </div>
-                {% empty %}
-                <p>No dictionary terms available.</p>
-                {% endfor %}
-
-            </div>
-
-        </main>
+<div class="dict-grid" id="dictGrid">
+    {% for item in terms %}
+    <div class="dict-card" data-term="{{ item.term|lower }}">
+        <h3>{{ item.term }}</h3>
+        <p>{{ item.meaning }}</p>
     </div>
+    {% empty %}
+    <p style="color: var(--text-muted); grid-column: 1/-1;">No dictionary terms available yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
 
-    <script>
-        // Profile menu toggle (only if elements exist)
-        const profileBtn = document.getElementById('profileBtn');
-        const profileMenu = document.getElementById('profileMenu');
-        if (profileBtn && profileMenu) {
-            profileBtn.addEventListener('click', function () {
-                profileMenu.classList.toggle('active');
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!e.target.closest('.profile-section')) {
-                    profileMenu.classList.remove('active');
-                }
-            });
-        }
-
-        // Guest dictionary profile menu toggle
-        function toggleGuestDictMenu(e) {
-            e.preventDefault();
-            const menu = document.getElementById('guestDictProfileMenu');
-            if (!menu) return;
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-        }
-
-        // Close guest dict menu when clicking outside
-        document.addEventListener('click', function (event) {
-            const menu = document.getElementById('guestDictProfileMenu');
-            const avatar = document.getElementById('guestDictProfileAvatar');
-            if (!menu || !avatar) return;
-            if (menu.style.display === 'block' && !menu.contains(event.target) && !avatar.contains(event.target)) {
-                menu.style.display = 'none';
-            }
-        });
-    </script>
-
-</body>
-
-</html>
+{% block extra_js %}
+<script>
+document.getElementById('searchBar').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.dict-card').forEach(card => {
+        const term = card.dataset.term || '';
+        const text = card.innerText.toLowerCase();
+        card.style.display = (text.includes(q) || term.includes(q)) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

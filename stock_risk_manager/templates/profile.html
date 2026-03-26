@@ -1,116 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>User Profile | StockRiskTracker</title>
+{% block title %}User Profile | StockRiskTracker{% endblock %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-    <style>
-        /* Add these small helpers for dynamic colors */
-        .safe-text {
-            color: #2ecc71;
-        }
+{% block page_title %}👤 User Profile{% endblock %}
 
-        .risky-text {
-            color: #e74c3c;
-        }
+{% block extra_css %}
+<style>
+.profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
 
-        .neutral-text {
-            color: #95a5a6;
-        }
-    </style>
-</head>
+.profile-left-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 36px 24px; text-align: center;
+  box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+}
+.profile-left-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
 
-<body>
+.avatar-ring {
+  width: 160px; height: 160px; margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 32px var(--accent-glow);
+  position: relative;
+  animation: floatAvatar 4s ease-in-out infinite;
+}
+@keyframes floatAvatar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.avatar-ring::before {
+  content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%;
+  border: 2px solid rgba(99,102,241,0.3);
+  animation: pulse-ring 2.5s ease-out infinite;
+}
+@keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 0; } }
 
-    <div class="container">
+.profile-image { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-card); position: relative; z-index: 1; }
 
-        <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
+.profile-left-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.profile-email { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+
+.risk-badge {
+  display: inline-flex; align-items: center; padding: 7px 20px;
+  border-radius: 25px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  transition: var(--transition);
+}
+.risk-badge.safe  { color: var(--green); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); box-shadow: 0 0 16px var(--green-glow); }
+.risk-badge.risky { color: var(--red);   background: rgba(244,63,94,0.1);  border: 1px solid rgba(244,63,94,0.3);  box-shadow: 0 0 16px var(--red-glow); }
+.risk-badge.neutral { color: var(--text-secondary); background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+
+.profile-right { display: flex; flex-direction: column; gap: 20px; }
+
+.info-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 6px 0; box-shadow: var(--shadow-card);
+}
+.info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+  transition: var(--transition); border-radius: var(--radius-sm);
+}
+.info-row:hover { background: rgba(99,102,241,0.06); }
+.info-row:last-child { border-bottom: none; }
+.info-row span { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.info-row strong { color: var(--text-primary); font-size: 15px; font-weight: 600; }
+
+.action-card {
+  background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.18);
+  border-radius: var(--radius-md); padding: 20px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: var(--transition);
+}
+.action-card:hover { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); }
+.action-card p { color: var(--text-secondary); font-size: 14px; }
+.quiz-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; background: linear-gradient(135deg, var(--accent), #818cf8);
+  color: #fff; text-decoration: none; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 13px;
+  box-shadow: 0 4px 14px var(--accent-glow); transition: var(--transition);
+  white-space: nowrap; flex-shrink: 0;
+}
+.quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px var(--accent-glow); }
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+    <!-- Left: avatar -->
+    <div class="profile-left-card">
+        <div class="avatar-ring">
+            <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile">
         </div>
-
-       <a href="{% url 'dashboard' %}">Dashboard</a>
-       <a href="#" class="active">Wallet</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        <h2>{{ user.username }}</h2>
+        <p class="profile-email">{{ user.email|default:"No email linked" }}</p>
+        <span class="risk-badge {% if profile.risk_category == 'Safe' %}safe{% elif profile.risk_category == 'Risky' %}risky{% else %}neutral{% endif %}">
+            {{ profile.risk_category|default:"Neutral" }}
+        </span>
     </div>
 
-        <div class="main">
-
-            <div class="header-top">
-                <h1>User Profile</h1>
+    <!-- Right: info + actions -->
+    <div class="profile-right">
+        <div class="info-card">
+            <div class="info-row">
+                <span>Username</span>
+                <strong>{{ user.username }}</strong>
             </div>
-
-            <div class="profile-card">
-
-                <div class="profile-left">
-                    <div class="avatar-ring">
-                        <img src="{% static 'image/profile.jpg' %}" class="profile-image" alt="Profile Image">
-                    </div>
-
-                    <span class="risk-badge {% if profile.risk_category == 'Safe' %}safe{% else %}risky{% endif %}">
-                        {{ profile.risk_category|default:"Neutral" }}
-                    </span>
-                </div>
-
-                <div class="profile-right">
-
-                    <div class="info-row">
-                        <span>Username</span>
-                        <strong>{{ user.username }}</strong>
-                    </div>
-
-                    <div class="info-row">
-                        <span>Email</span>
-                        <strong>
-                            {% if user.email %}
-                            {{ user.email }}
-                            {% else %}
-                            <span style="color: #ccc;">No email linked</span>
-                            {% endif %}
-                        </strong>
-                    </div>
-
-                    <div class="info-row">
-                        <span>Wallet Balance</span>
-                        <strong>₹ {{ profile.wallet_balance }}</strong>
-                    </div>
-
-                    <div class="info-row">
-                        <span>Risk Status</span>
-                        <strong
-                            class="{% if profile.risk_category == 'Safe' %}safe-text{% else %}risky-text{% endif %}">
-                            {{ profile.risk_category|default:"Neutral" }}
-                        </strong>
-                    </div>
-
-                    <div class="quiz-section">
-                        <p>Want to reassess your investment risk?</p>
-                        <a href="{% url 'quiz' %}" class="quiz-btn">Retake Risk Quiz</a>
-                    </div>
-
-                    <div class="quiz-section">
-                        <p>Want to update your profile details?</p>
-                        <a href="{% url 'update_profile' %}" class="quiz-btn">
-                            Update Profile
-                        </a>
-                    </div>
-
-                </div>
-
+            <div class="info-row">
+                <span>Email</span>
+                <strong>{{ user.email|default:"No email linked" }}</strong>
             </div>
+            <div class="info-row">
+                <span>Wallet Balance</span>
+                <strong>₹ {{ profile.wallet_balance }}</strong>
+            </div>
+            <div class="info-row">
+                <span>Risk Status</span>
+                <strong class="{% if profile.risk_category == 'Safe' %}safe-text{% elif profile.risk_category == 'Risky' %}risky-text{% else %}neutral-text{% endif %}">
+                    {{ profile.risk_category|default:"Neutral" }} Investor
+                </strong>
+            </div>
+        </div>
 
+        <div class="action-card">
+            <p>Reassess your investment risk profile</p>
+            <a href="{% url 'quiz' %}" class="quiz-btn">🎯 Retake Quiz</a>
+        </div>
+        <div class="action-card">
+            <p>Update your profile details</p>
+            <a href="{% url 'update_profile' %}" class="quiz-btn">✏️ Edit Profile</a>
         </div>
     </div>
-
-</body>
-
-</html>
+</div>
+{% endblock %}

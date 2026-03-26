@@ -1,161 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Watchlist | StockRiskTracker</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <style>
-        /* Specific Styles for Watchlist Cards */
-        .watchlist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
+{% extends "base.html" %}
+{% load static %}
 
-        .stock-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative; /* For delete button positioning */
-            border-left: 5px solid #ccc;
-        }
+{% block title %}Watchlist | StockRiskTracker{% endblock %}
+{% block nav_watchlist %}active{% endblock %}
+{% block nav_watchlist_g %}active{% endblock %}
 
-        .stock-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
+{% block page_title %}👁 My Watchlist{% endblock %}
 
-        /* Dynamic Status Colors */
-        .stock-card.safe { border-left-color: #2ecc71; }
-        .stock-card.risky { border-left-color: #e74c3c; }
+{% block extra_css %}
+<style>
+.watchlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+.wl-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 22px;
+  position: relative; cursor: pointer; overflow: hidden;
+  transition: var(--transition);
+}
+.wl-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  transform: scaleX(0); transform-origin: left; transition: var(--transition);
+}
+.wl-card.safe::after  { background: var(--green); }
+.wl-card.risky::after { background: var(--red); }
+.wl-card:hover { transform: translateY(-5px); border-color: var(--border-accent); }
+.wl-card:hover::after { transform: scaleX(1); }
+.wl-card.safe:hover  { box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 20px var(--green-glow); }
+.wl-card.risky:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 20px var(--red-glow); }
 
-        .card-header h3 { margin: 0; color: #333; }
-        
-        .price-tag {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #1f3c88;
-            margin: 10px 0;
-        }
+.wl-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.wl-symbol { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.wl-risk { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.wl-card.safe  .wl-risk { color: var(--green); }
+.wl-card.risky .wl-risk { color: var(--red); }
 
-        .change-tag { font-size: 0.9em; font-weight: bold; }
-        .change-pos { color: #2ecc71; }
-        .change-neg { color: #e74c3c; }
+.wl-price { font-size: 24px; font-weight: 900; color: var(--text-primary); margin: 8px 0 10px; letter-spacing: -0.5px; }
+.wl-change { font-size: 13px; font-weight: 700; }
+.change-pos { color: var(--green); }
+.change-neg { color: var(--red); }
 
-        /* Delete Button (Trash Icon) */
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: #ccc;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: color 0.2s;
-            text-decoration: none; /* Remove underline */
-        }
-        .delete-btn:hover { color: #e74c3c; }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            grid-column: 1 / -1; /* Span full width */
-        }
-        .btn-link {
-            color: #1f3c88;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
-</head>
+.delete-btn {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.2);
+  color: var(--red); width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; text-decoration: none; cursor: pointer;
+  transition: var(--transition); z-index: 5;
+}
+.delete-btn:hover { background: rgba(244,63,94,0.25); color: #fff; }
 
-<body>
+@media (max-width: 540px) { .watchlist-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
-<div class="container">
-
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-        {% if is_guest %}
-            <a href="{% url 'guest' %}">Dashboard</a>
-            <a href="{% url 'watchlist' %}" class="active">Watchlist</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'login' %}" class="logout-btn">Login</a>
-        {% else %}
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'wallet' %}">Wallet</a>
-            <a href="#" class="active">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="{% url 'history' %}">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        {% endif %}
+{% block content %}
+{% if is_guest %}
+    <div class="login-prompt">
+        <div class="lock-icon">🔒</div>
+        <h2>Login to View Watchlist</h2>
+        <p>Save and track your favourite stocks once you're logged in.</p>
+        <a href="{% url 'login' %}" class="btn-primary">→ Go to Login</a>
     </div>
-
-    <div class="main">
-        <div class="header-top">
-            <h1>My Watchlist</h1>
+{% else %}
+    <div class="watchlist-grid">
+        {% for stock in watchlist %}
+        <div class="wl-card {% if stock.risk == 'SAFE' %}safe{% else %}risky{% endif %}">
+            <a href="{% url 'remove_from_watchlist' stock.id %}" class="delete-btn" onclick="return confirm('Remove {{ stock.symbol }}?')">✕</a>
+            <div onclick="window.location.href='{% url 'report' %}?ticker={{ stock.symbol }}'">
+                <div class="wl-card-header">
+                    <div class="wl-symbol">{{ stock.symbol }}</div>
+                    <div class="wl-risk">{{ stock.risk }}</div>
+                </div>
+                <div class="wl-price">₹ {{ stock.price }}</div>
+                <div class="wl-change {% if stock.change >= 0 %}change-pos{% else %}change-neg{% endif %}">
+                    {% if stock.change >= 0 %}▲{% else %}▼{% endif %} {{ stock.change }}%
+                </div>
+            </div>
         </div>
-
-        {% if is_guest %}
-            <!-- Guest Login Notification -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; text-align: center; color: white; margin-top: 30px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
-                <h2 style="margin: 0 0 10px 0; font-size: 28px;">Please login</h2>
-                <p style="font-size: 16px; margin: 10px 0 20px 0; opacity: 0.95;">You need to log in to view and manage your watchlist.</p>
-                <a href="{% url 'login' %}" style="display: inline-block; background-color: white; color: #667eea; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    → Go to Login
-                </a>
-            </div>
-        {% else %}
-            <div class="watchlist-grid">
-            {% for stock in watchlist %}
-                <div class="stock-card {% if stock.risk == 'SAFE' %}safe{% else %}risky{% endif %}">
-                    
-                    <a href="{% url 'remove_from_watchlist' stock.id %}" class="delete-btn" onclick="return confirm('Remove {{ stock.symbol }}?')">✕</a>
-
-                    <div style="cursor: pointer;" onclick="window.location.href='{% url 'report' %}?ticker={{ stock.symbol }}'">
-                        <div class="card-header">
-                            <h3>{{ stock.symbol }}</h3>
-                            <span style="font-size:0.8em; font-weight:bold; color:#888;">{{ stock.risk }}</span>
-                        </div>
-                        
-                        <div class="price-tag">₹ {{ stock.price }}</div>
-                        
-                        <div class="change-tag {% if stock.change >= 0 %}change-pos{% else %}change-neg{% endif %}">
-                            {% if stock.change >= 0 %}▲{% else %}▼{% endif %} {{ stock.change }}%
-                        </div>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="empty-state">
-                    <div style="font-size: 40px; margin-bottom: 10px;">📋</div>
-                    <h3>Your watchlist is empty</h3>
-                    <p>Go to the <a href="{% url 'dashboard' %}" class="btn-link">Dashboard</a>, search for a stock, and click "Add to Watchlist".</p>
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
-
+        {% empty %}
+        <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-icon">📋</div>
+            <h3>Your watchlist is empty</h3>
+            <p>Search for a stock on the <a href="{% url 'dashboard' %}" class="btn-link">Dashboard</a> and add it to your watchlist.</p>
+        </div>
+        {% endfor %}
     </div>
-</div>
-
-</body>
-</html>
+{% endif %}
+{% endblock %}

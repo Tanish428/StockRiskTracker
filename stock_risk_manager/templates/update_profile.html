@@ -1,94 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update Profile | StockRiskTracker</title>
+{% extends "base.html" %}
+{% load static %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'css/update_profile.css' %}">
-</head>
+{% block title %}Update Profile | StockRiskTracker{% endblock %}
 
-<body>
+{% block page_title %}✏️ Update Profile{% endblock %}
 
-<!-- 🔴 TOP ALERT -->
-{% if messages %}
-<div class="top-alert-container">
-    {% for message in messages %}
-        <div class="top-alert {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
+{% block extra_css %}
+<style>
+.update-form-card {
+  max-width: 520px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 36px 32px;
+  box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+}
+.update-form-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.form-group input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary);
+  font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+  transition: var(--transition);
+}
+.form-group input::placeholder { color: rgba(148,163,184,0.45); }
+.form-group input:focus { border-color: var(--accent); background: rgba(99,102,241,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-<div class="container">
+.update-btn {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  color: #fff; font-size: 15px; font-weight: 700;
+  font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 8px;
+  transition: var(--transition); box-shadow: 0 4px 14px var(--accent-glow);
+}
+.update-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px var(--accent-glow); }
+</style>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-
-        <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="{% url 'wallet' %}">Wallet</a>
-        <a href="{% url 'watchlist' %}">Watchlist</a>
-        <a href="{% url 'investment_diary' %}">Investment Diary</a>
-        <a href="{% url 'history' %}">History</a>
-        <a href="{% url 'dictionary' %}">Dictionary</a>
-        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-    </div>
-
-    <!-- Main -->
-    <div class="main">
-
-        <div class="header-top">
-            <h1>Update Profile</h1>
-        </div>
-
-        <div class="update-container">
-
-            <form method="POST">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" value="{{ user.username }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" value="{{ user.email }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Old Password</label>
-                    <input type="password" name="old_password" required>
-                </div>
-
-                <div class="form-group">
-                    <label>New Password</label>
-                    <!-- ❌ YOU HAD SPACE IN NAME → FIXED -->
-                    <input type="password" name="new_password">
-                </div>
-
-                <button type="submit" class="update-btn">
-                    Save Changes
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-</div>
-
-<!-- AUTO HIDE ALERT -->
+{% block extra_js %}
 <script>
-    setTimeout(() => {
-        const alerts = document.querySelector('.top-alert-container');
-        if (alerts) alerts.style.display = 'none';
-    }, 4000);
+setTimeout(() => {
+    const alerts = document.querySelector('.global-messages');
+    if (alerts) { alerts.style.opacity = '0'; alerts.style.transition = 'opacity 0.5s'; }
+}, 4000);
 </script>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="update-form-card">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" value="{{ user.username }}" required>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value="{{ user.email }}">
+        </div>
+        <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" name="old_password" placeholder="Enter current password" required>
+        </div>
+        <div class="form-group">
+            <label>New Password <span style="color:var(--text-muted); font-weight:400;">(leave blank to keep current)</span></label>
+            <input type="password" name="new_password" placeholder="Enter new password">
+        </div>
+        <button type="submit" class="update-btn">💾 Save Changes</button>
+    </form>
+</div>
+{% endblock %}

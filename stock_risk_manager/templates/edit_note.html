@@ -1,64 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Note | StockRiskTracker</title>
+{% extends "base.html" %}
+{% load static %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/investment_diary.css' %}">
-</head>
+{% block title %}Edit Note | StockRiskTracker{% endblock %}
+{% block nav_diary %}active{% endblock %}
 
-<body>
+{% block page_title %}✏️ Edit Note{% endblock %}
 
-<div class="container">
+{% block extra_css %}
+<style>
+.edit-card {
+  max-width: 680px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 32px;
+  box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+}
+.edit-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.note-meta-bar {
+  background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.15);
+  border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 22px;
+  font-size: 13px; color: var(--text-muted);
+  display: flex; gap: 20px;
+}
+.note-input {
+  width: 100%; padding: 13px 16px; margin-bottom: 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary);
+  font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+  transition: var(--transition);
+}
+.note-input::placeholder { color: rgba(148,163,184,0.45); }
+.note-input:focus { border-color: var(--accent); background: rgba(99,102,241,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+textarea.note-input { resize: vertical; min-height: 160px; }
+.action-row { display: flex; gap: 12px; }
+.btn-save {
+  flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  color: #fff; font-size: 14px; font-weight: 700;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-glow); transition: var(--transition);
+}
+.btn-save:hover { transform: translateY(-2px); }
+.btn-cancel {
+  flex: 1; padding: 12px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 14px; font-weight: 600;
+  text-decoration: none; display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+</style>
+{% endblock %}
 
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-
-        <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="{% url 'wallet' %}">Wallet</a>
-        <a href="{% url 'watchlist' %}">Watchlist</a>
-        <a href="{% url 'investment_diary' %}" class="active">Investment Diary</a>
-        <a href="{% url 'history' %}">History</a>
-        <a href="{% url 'dictionary' %}">Dictionary</a>
-        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+{% block content %}
+<div class="edit-card">
+    <div class="note-meta-bar">
+        <span>📅 Created: {{ note.created_at|date:"d M, Y" }}</span>
+        <span>⏰ {{ note.created_at|time:"H:i" }}</span>
     </div>
-
-    <div class="main">
-
-        <div class="header-top">
-            <h1>✏️ Edit Note</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="title" value="{{ note.title }}" placeholder="Note title" class="note-input" required>
+        <textarea name="content" class="note-input" placeholder="Write your thoughts..." required>{{ note.content }}</textarea>
+        <div class="action-row">
+            <button type="submit" class="btn-save">💾 Update Note</button>
+            <a href="{% url 'investment_diary' %}" class="btn-cancel">✕ Cancel</a>
         </div>
-
-        <!-- Edit Note Form -->
-        <div class="add-note-card">
-            <h2>Modify Your Note</h2>
-
-            <!-- Display Note Metadata -->
-            <div style="margin-bottom: 20px; padding: 15px; background: #f5f7fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                <div class="note-date" style="margin-bottom: 8px;">Created: {{ note.created_at|date:"d M, Y" }}</div>
-                <div class="note-time">Time: {{ note.created_at|time:"H:i" }}</div>
-            </div>
-
-            <form method="POST">
-                {% csrf_token %}
-
-                <input type="text" name="title" value="{{ note.title }}" placeholder="Note Title" required>
-                <textarea name="content" placeholder="Write your thoughts..." required>{{ note.content }}</textarea>
-
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="buy-btn" style="flex: 1;">💾 Update Note</button>
-                    <a href="{% url 'investment_diary' %}" class="sell-btn" style="flex: 1; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 600;">❌ Cancel</a>
-                </div>
-            </form>
-        </div>
-
-    </div>
+    </form>
 </div>
-
-</body>
-</html>
+{% endblock %}

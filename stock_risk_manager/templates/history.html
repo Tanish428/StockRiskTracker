@@ -1,202 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Transaction History | StockRiskTracker</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <style>
-        /* --- History Table Styles --- */
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
-        .history-table th, .history-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        .history-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #555;
-            text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 0.5px;
-        }
-        .history-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        /* Interactive Rows */
-        .history-row {
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-        }
-        .history-row:hover {
-            background-color: #f1f5f9; /* Light blue-grey hover */
-        }
+{% extends "base.html" %}
+{% load static %}
 
-        /* Status Badges */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 800;
-            display: inline-block;
-            letter-spacing: 0.5px;
-        }
-        .badge-buy {
-            background-color: #e8f5e9;
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-        }
-        .badge-sell {
-            background-color: #ffebee;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
+{% block title %}Transaction History | StockRiskTracker{% endblock %}
+{% block nav_history %}active{% endblock %}
+{% block nav_history_g %}active{% endblock %}
 
-        /* Empty State */
-        .no-data {
-            text-align: center;
-            padding: 60px 20px;
-            color: #888;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .btn-primary {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #1f3c88;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-        .btn-primary:hover {
-            background-color: #162a60;
-        }
-    </style>
-</head>
+{% block page_title %}🕒 Transaction History{% endblock %}
 
-<body>
+{% block extra_css %}
+<style>
+.history-table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
+.history-table thead tr { background: rgba(99,102,241,0.08); border-bottom: 1px solid var(--border); }
+.history-table th { padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.history-table td { padding: 16px 18px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-secondary); }
+.history-table tbody tr:last-child td { border-bottom: none; }
+.history-table tbody tr { transition: var(--transition); cursor: pointer; }
+.history-table tbody tr:hover { background: rgba(99,102,241,0.06); }
+.history-table td strong { color: var(--text-primary); font-size: 15px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.badge-buy  { color: var(--green); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); }
+.badge-sell { color: var(--red);   background: rgba(244,63,94,0.1);  border: 1px solid rgba(244,63,94,0.3); }
+.no-data { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.no-data .icon { font-size: 48px; margin-bottom: 16px; }
+.no-data h3 { color: var(--text-secondary); margin-bottom: 10px; }
+</style>
+{% endblock %}
 
-<div class="container">
-
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
-        {% if is_guest %}
-            <a href="{% url 'guest' %}">Dashboard</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'history' %}" class="active">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'login' %}" class="logout-btn">Login</a>
-        {% else %}
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'wallet' %}">Wallet</a>
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'investment_diary' %}">Investment Diary</a>
-            <a href="#" class="active">History</a>
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        {% endif %}
+{% block content %}
+{% if is_guest %}
+    <div class="login-prompt">
+        <div class="lock-icon">🔒</div>
+        <h2>Login to View History</h2>
+        <p>Track all your buy/sell transactions once you're logged in.</p>
+        <a href="{% url 'login' %}" class="btn-primary">→ Go to Login</a>
     </div>
-
-    <div class="main">
-        <div class="header-top">
-            <h1>Transaction History</h1>
-        </div>
-
-        {% if is_guest %}
-            <!-- Guest Login Notification -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; text-align: center; color: white; margin-top: 30px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
-                <h2 style="margin: 0 0 10px 0; font-size: 28px;">Please login</h2>
-                <p style="font-size: 16px; margin: 10px 0 20px 0; opacity: 0.95;">You need to log in to view your transaction history.</p>
-                <a href="{% url 'login' %}" style="display: inline-block; background-color: white; color: #667eea; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    → Go to Login
-                </a>
-            </div>
-        {% else %}
-            {% if transactions %}
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Date & Time</th>
-                        <th>Stock Symbol</th>
-                        <th>Action</th>
-                        <th>Qty</th>
-                        <th>Price / Share</th>
-                        <th>Total Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in transactions %}
-                    <tr class="history-row" onclick="window.location.href='{% url "report" %}?ticker={{ t.ticker }}'">
-                        
-                        <td style="color:#666; font-size:0.9em;">
-                            {{ t.timestamp|date:"M d, Y • H:i" }}
-                        </td>
-
-                        <td>
-                            <strong style="font-size: 1.1em; color: #333;">{{ t.ticker }}</strong>
-                        </td>
-
-                        <td>
-                            <span class="badge {% if t.transaction_type == 'BUY' %}badge-buy{% else %}badge-sell{% endif %}">
-                                {{ t.transaction_type }}
-                            </span>
-                        </td>
-
-                        <td style="font-weight: bold;">{{ t.quantity }}</td>
-
-                        <td>₹ {{ t.price_at_transaction }}</td>
-
-                        <td style="font-weight:bold; font-size: 1.05em;">
-                            {% if t.transaction_type == 'BUY' %}
-                                <span style="color: #e74c3c;">- ₹ {{ t.total_cost }}</span>
-                            {% else %}
-                                <span style="color: #2ecc71;">+ ₹ {{ t.total_cost }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="no-data">
-                <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
-                <h3>No transactions found</h3>
-                <p>You haven't made any trades yet. Start investing to see your history here.</p>
-                <a href="{% url 'dashboard' %}" class="btn-primary">Go to Dashboard</a>
-            </div>
-            {% endif %}
-        {% endif %}
-        <div class="mt-4 mb-4" style="border: 1px solid red; padding: 15px; border-radius: 5px; background-color: #fff5f5;">
-    <h4 style="color: red;">Danger Zone</h4>
-    <p>This action will permanently delete all your past transactions and reset your wallet balance to ₹10,000.00. This cannot be undone.</p>
-    
-    <form action="{% url 'reset_account' %}" method="POST" onsubmit="return confirm('CRITICAL WARNING: This will permanently wipe your entire trading history and reset your wallet. Are you absolutely sure you want to proceed?');">
-        {% csrf_token %}
-        <button type="submit" style="background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Wipe Ledger & Reset Account
-        </button>
-    </form>
-</div>
-
+{% else %}
+    {% if transactions %}
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Stock Symbol</th>
+                <th>Action</th>
+                <th>Qty</th>
+                <th>Price / Share</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr onclick="window.location.href='{% url "report" %}?ticker={{ t.ticker }}'">
+                <td>{{ t.timestamp|date:"M d, Y • H:i" }}</td>
+                <td><strong>{{ t.ticker }}</strong></td>
+                <td>
+                    <span class="badge {% if t.transaction_type == 'BUY' %}badge-buy{% else %}badge-sell{% endif %}">
+                        {{ t.transaction_type }}
+                    </span>
+                </td>
+                <td style="font-weight: 700; color: var(--text-primary);">{{ t.quantity }}</td>
+                <td>₹ {{ t.price_at_transaction }}</td>
+                <td style="font-weight: 800; font-size: 15px;">
+                    {% if t.transaction_type == 'BUY' %}
+                        <span style="color: var(--red);">− ₹ {{ t.total_cost }}</span>
+                    {% else %}
+                        <span style="color: var(--green);">+ ₹ {{ t.total_cost }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-data">
+        <div class="icon">📭</div>
+        <h3>No transactions yet</h3>
+        <p>You haven't made any trades yet. Start investing to see your history here.</p>
+        <a href="{% url 'dashboard' %}" class="btn-primary" style="margin-top: 18px; display: inline-flex;">Go to Dashboard</a>
     </div>
-</div>
+    {% endif %}
 
-</body>
-</html>
+    <!-- Danger Zone -->
+    <div class="danger-zone">
+        <h4>⚠ Danger Zone</h4>
+        <p>This will permanently delete all your past transactions and reset your wallet to ₹10,000. This cannot be undone.</p>
+        <form action="{% url 'reset_account' %}" method="POST" onsubmit="return confirm('CRITICAL WARNING: Permanently wipe all trading history and reset wallet. Are you sure?');">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Wipe Ledger &amp; Reset Account</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockRiskTracker{% endblock %}</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ========= TOP NAVBAR ========= -->
+<nav class="navbar">
+    <div class="navbar-brand">
+        <div class="brand-logo">📈</div>
+        <span class="brand-name">StockRisk<span class="brand-accent">Tracker</span></span>
+    </div>
+
+    <div class="navbar-links">
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">🏠 Dashboard</a>
+            <a href="{% url 'wallet' %}" class="nav-link {% block nav_wallet %}{% endblock %}">💰 Wallet</a>
+            <a href="{% url 'watchlist' %}" class="nav-link {% block nav_watchlist %}{% endblock %}">👁 Watchlist</a>
+            <a href="{% url 'investment_diary' %}" class="nav-link {% block nav_diary %}{% endblock %}">📓 Diary</a>
+            <a href="{% url 'history' %}" class="nav-link {% block nav_history %}{% endblock %}">🕒 History</a>
+            <a href="{% url 'dictionary' %}" class="nav-link {% block nav_dictionary %}{% endblock %}">📚 Dictionary</a>
+        {% else %}
+            <a href="{% url 'guest' %}" class="nav-link">🏠 Dashboard</a>
+            <a href="{% url 'watchlist' %}" class="nav-link {% block nav_watchlist_g %}{% endblock %}">👁 Watchlist</a>
+            <a href="{% url 'history' %}" class="nav-link {% block nav_history_g %}{% endblock %}">🕒 History</a>
+            <a href="{% url 'dictionary' %}" class="nav-link {% block nav_dictionary_g %}{% endblock %}">📚 Dictionary</a>
+        {% endif %}
+    </div>
+
+    <div class="navbar-right">
+        {% if user.is_authenticated %}
+            <div class="profile-section">
+                <img src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar" id="profileBtn">
+                <div class="profile-menu" id="profileMenu">
+                    <a href="{% url 'profile' %}">👤 &nbsp;Profile</a>
+                    <a href="{% url 'logout' %}" class="menu-logout">🚪 &nbsp;Logout</a>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-pill">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="login-pill">Login →</a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- ========= PAGE CONTENT ========= -->
+<div class="page-wrapper">
+
+    {% if messages %}
+    <div class="global-messages">
+        {% for message in messages %}
+        <div class="alert-msg {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="page-header">
+        <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+        {% block page_actions %}{% endblock %}
+    </div>
+
+    <div class="page-content">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>
+
+<script>
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileMenu.classList.toggle('active');
+        });
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.profile-section')) {
+            if (profileMenu) profileMenu.classList.remove('active');
+        }
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

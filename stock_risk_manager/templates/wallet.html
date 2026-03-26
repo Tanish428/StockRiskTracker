@@ -1,99 +1,116 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Wallet | StockRiskTracker</title>
+{% extends "base.html" %}
+{% load static %}
 
-    {% load static %}
+{% block title %}Wallet | StockRiskTracker{% endblock %}
+{% block nav_wallet %}active{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'css/wallet.css' %}">
-</head>
+{% block page_title %}💰 Virtual Wallet{% endblock %}
 
-<body>
+{% block extra_css %}
+<style>
+.wallet-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
 
-<div class="container">
+.balance-card {
+  grid-column: 1 / -1;
+  background: var(--bg-card);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 40px var(--accent-glow);
+  position: relative; overflow: hidden;
+}
+.balance-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.balance-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; }
+.balance-value {
+  font-size: 52px; font-weight: 900; letter-spacing: -2px;
+  background: linear-gradient(120deg, #fff, var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo">📈</div>
-            <h2>StockRiskTracker</h2>
-        </div>
+.action-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+}
+.action-card:hover { border-color: var(--border-accent); }
+.action-card h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 18px; }
 
-        <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="#" class="active">Wallet</a>
-        <a href="{% url 'watchlist' %}">Watchlist</a>
-        <a href="{% url 'investment_diary' %}">Investment Diary</a>
-        <a href="{% url 'history' %}">History</a>
-        <a href="{% url 'dictionary' %}">Dictionary</a>
-        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+.wallet-input {
+  width: 100%; padding: 13px 16px; margin-bottom: 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary);
+  font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+  transition: var(--transition);
+}
+.wallet-input::placeholder { color: rgba(148,163,184,0.45); }
+.wallet-input:focus { border-color: var(--accent); background: rgba(99,102,241,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+.wallet-btn {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer;
+  transition: var(--transition);
+}
+.btn-add {
+  background: linear-gradient(135deg, var(--green), #34d399);
+  color: #fff; box-shadow: 0 4px 16px var(--green-glow);
+}
+.btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--green-glow); }
+.btn-withdraw {
+  background: rgba(244,63,94,0.12); border: 1px solid rgba(244,63,94,0.3);
+  color: var(--red);
+}
+.btn-withdraw:hover { background: rgba(244,63,94,0.22); box-shadow: 0 4px 16px var(--red-glow); }
+
+@media (max-width: 768px) { .wallet-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wallet-grid">
+    <!-- Balance display -->
+    <div class="balance-card">
+        <div class="balance-label">Available Balance</div>
+        <div class="balance-value">₹ {{ profile.wallet_balance }}</div>
     </div>
 
-
-    <div class="main">
-
-        <div class="header-top">
-            <h1>Virtual Trading Wallet</h1>
-        </div>
-
-        <div class="wallet-card">
-            <h2>Available Balance</h2>
-            <div class="balance">₹ {{ profile.wallet_balance }}</div>
-        </div>
-
-
-        <div class="wallet-actions">
-
-            <!-- Deposit Section -->
-            <div class="action-section">
-                <h3>💰 Deposit Money</h3>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="ADD">
-
-                    <input 
-                        type="text" 
-                        name="amount" 
-                        placeholder="Enter amount to deposit"
-                        class="wallet-input"
-                        required
-                    >
-
-                    <button type="submit" class="wallet-btn">
-                        Add Money
-                    </button>
-                </form>
-            </div>
-
-
-            <!-- Withdraw Section -->
-            <div class="action-section">
-                <h3>🏦 Withdraw Money</h3>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="WITHDRAW">
-
-                    <input 
-                        type="text" 
-                        name="amount" 
-                        placeholder="Enter amount to withdraw"
-                        class="wallet-input"
-                        required
-                    >
-
-                    <button type="submit" class="wallet-btn">
-                        Withdraw Money
-                    </button>
-                </form>
-
-            </div>
-
-        </div>
-
+    <!-- Deposit -->
+    <div class="action-card">
+        <h3>💰 Deposit Money</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="ADD">
+            <input type="text" name="amount" placeholder="Enter amount to deposit" class="wallet-input" required>
+            <button type="submit" class="wallet-btn btn-add">Add Money</button>
+        </form>
     </div>
 
+    <!-- Withdraw -->
+    <div class="action-card">
+        <h3>🏦 Withdraw Money</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="WITHDRAW">
+            <input type="text" name="amount" placeholder="Enter amount to withdraw" class="wallet-input" required>
+            <button type="submit" class="wallet-btn btn-withdraw">Withdraw Money</button>
+        </form>
+    </div>
+
+    <!-- Quick tip -->
+    <div class="action-card">
+        <h3>💡 Quick Tips</h3>
+        <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.7;">
+            Your virtual wallet lets you practice trading with simulated funds.<br><br>
+            Deposit money to buy stocks, or withdraw to simulate taking profits.<br><br>
+            All trades use live market prices.
+        </p>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}
