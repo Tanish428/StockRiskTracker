@@ -1,110 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>StockRiskTracker - Guest</title>
+{% block title %}Guest Dashboard | StockRiskTracker{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-</head>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
 
-<body>
+{% block page_title %}{% endblock %}
 
-    <div class="container">
+{% block content %}
 
-        <div class="sidebar">
-            <div class="logo-section">
-                <div class="logo">📈</div>
-                <h2>StockRiskTracker</h2>
-            </div>
-            <a href="{% url 'guest' %}" class="active">Dashboard</a>
-            <!-- Direct links to pages - guests will see login notification instead of auto-redirect -->
-            <a href="{% url 'watchlist' %}">Watchlist</a>
-            <a href="{% url 'history' %}">History</a>
-            <!-- Dictionary is public (top-level for guests) -->
-            <a href="{% url 'dictionary' %}">Dictionary</a>
-            <a href="{% url 'login' %}" class="logout-btn">Login</a>
+<!-- ========= HERO SECTION & FULL PAGE BG ========= -->
+<div class="hero-bg"></div>
+<div class="hero-overlay"></div>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">⚡ Live Risk Intelligence</div>
+        <h1 class="hero-title">Welcome to the Market.</h1>
+        <p class="hero-sub">Analyze any stock's risk profile instantly. Please sign in to unlock full features.</p>
+
+        <form class="hero-search" action="{% url 'login' %}" method="GET">
+            <input type="hidden" name="next" value="/tracker/report/">
+            <input
+                type="text"
+                class="hero-search-input"
+                placeholder="Enter symbol — e.g. RELIANCE.NS, AAPL, TCS.NS ..."
+                required
+                autocomplete="off"
+                onclick="promptLogin('/tracker/report/')"
+            >
+            <button type="button" class="hero-search-btn" onclick="promptLogin('/tracker/report/')">🔍 Analyze</button>
+        </form>
+    </div>
+</section>
+
+<!-- ========= STAT CARDS ========= -->
+<div class="stats-row">
+    <a href="#" onclick="promptLogin('/tracker/wallet/')" class="stat-card card-wallet">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <span class="stat-label">Virtual Wallet</span>
+            <span class="stat-value">₹ 0 (Guest)</span>
         </div>
+        <div class="stat-arrow">→</div>
+    </a>
 
-        <div class="main">
-            <div class="header-top">
-                <h1>Welcome — Guest</h1>
-                <div class="profile-section" style="position: relative;">
-                    <!-- Guests see an avatar that opens a small menu with Login / Sign Up -->
-                    <a href="#" id="guestProfileAvatar" onclick="toggleProfileMenu(event)"><img src="{% static 'image/profile.jpg' %}" alt="Profile" class="profile-avatar"></a>
-
-                    <div id="guestProfileMenu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid #ddd; padding:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border-radius:6px; z-index:1000; min-width:140px; text-align:center;">
-                        <a class="guest-profile-btn" href="{% url 'login' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#0b5ed7;color:#fff;border-radius:4px;text-decoration:none;">Login</a>
-                        <a class="guest-profile-btn" href="{% url 'register' %}" style="display:inline-block;margin:6px 0;padding:8px 12px;background:#6c757d;color:#fff;border-radius:4px;text-decoration:none;">Sign Up</a>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="watchlist">
-                <h3>Stocks (Preview)</h3>
-
-                <div class="stock-cards-horizontal">
-                    <div class="stock-card safe" onclick="guestRedirect('/report?stock=Reliance')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
-                            <h4>Reliance</h4>
-                        </div>
-                        <p class="price">₹ 2,456.80</p>
-                        <p class="status">SAFE</p>
-                    </div>
-
-                    <div class="stock-card risky" onclick="guestRedirect('/report?stock=Adani%20Power')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
-                            <h4>Adani Power</h4>
-                        </div>
-                        <p class="price">₹ 312.40</p>
-                        <p class="status">RISKY</p>
-                    </div>
-
-                    <div class="stock-card safe" onclick="guestRedirect('/report?stock=TCS')" style="cursor: pointer;">
-                        <div class="card-header">
-                            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
-                            <h4>TCS</h4>
-                        </div>
-                        <p class="price">₹ 3,340.00</p>
-                        <p class="status">SAFE</p>
-                    </div>
-                </div>
-
-            </div>
-
+    <div class="stat-card card-risk" onclick="promptLogin('/tracker/profile/')" style="cursor:pointer;">
+        <div class="stat-icon">
+            <img src="{% static 'image/profile.jpg' %}" alt="Risk" class="risk-mini-logo">
         </div>
-
+        <div class="stat-info">
+            <span class="stat-label">⚡ Risk Status</span>
+            <span class="stat-value neutral-text">Guest Explorer</span>
+        </div>
     </div>
 
-    <script>
-        // Guests: redirect protected actions to login with next param
-        function guestRedirect(path) {
-            const loginUrl = '{% url "login" %}';
-            window.location.href = loginUrl + '?next=' + encodeURIComponent(path);
-        }
-        
-        // Toggle small profile menu for guests (Login / Sign Up)
-        function toggleProfileMenu(e) {
-            e.preventDefault();
-            const menu = document.getElementById('guestProfileMenu');
-            if (!menu) return;
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-        }
+    <a href="#" onclick="promptLogin('/tracker/watchlist/')" class="stat-card card-watchlist">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+            <span class="stat-label">Watchlist</span>
+            <span class="stat-value">Locked</span>
+        </div>
+        <div class="stat-arrow">→</div>
+    </a>
 
-        // Hide the profile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('guestProfileMenu');
-            const avatar = document.getElementById('guestProfileAvatar');
-            if (!menu || !avatar) return;
-            if (menu.style.display === 'block' && !menu.contains(event.target) && !avatar.contains(event.target)) {
-                menu.style.display = 'none';
-            }
-        });
-    </script>
+    <a href="#" onclick="promptLogin('/tracker/history/')" class="stat-card card-history">
+        <div class="stat-icon">🕒</div>
+        <div class="stat-info">
+            <span class="stat-label">Trade History</span>
+            <span class="stat-value">Locked</span>
+        </div>
+        <div class="stat-arrow">→</div>
+    </a>
+</div>
 
-</body>
-</html>
+<!-- ========= POPULAR STOCKS ========= -->
+<div class="section-header">
+    <h2 class="section-title"><span class="dot-accent"></span> Popular Stocks</h2>
+</div>
+
+<div class="stock-grid">
+    <div class="stock-card safe" onclick="promptLogin('/tracker/report/?ticker=RELIANCE.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/reliance-logo.png' %}" onerror="this.src='https://ui-avatars.com/api/?name=R&background=random'" alt="Reliance" class="company-logo">
+            <div>
+                <h4>Reliance</h4>
+                <small class="ticker-text">RELIANCE.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 2,456.80</p>
+        <span class="status-badge safe-badge">● SAFE TREND</span>
+    </div>
+
+    <div class="stock-card risky" onclick="promptLogin('/tracker/report/?ticker=ADANIPOWER.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/adani-logo.png' %}" onerror="this.src='https://ui-avatars.com/api/?name=A&background=random'" alt="Adani Power" class="company-logo">
+            <div>
+                <h4>Adani Power</h4>
+                <small class="ticker-text">ADANIPOWER.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 312.40</p>
+        <span class="status-badge risky-badge">● RISKY TREND</span>
+    </div>
+
+    <div class="stock-card safe" onclick="promptLogin('/tracker/report/?ticker=TCS.NS')">
+        <div class="stock-card-top">
+            <img src="{% static 'image/tcs-logo.jpg' %}" onerror="this.src='https://ui-avatars.com/api/?name=T&background=random'" alt="TCS" class="company-logo">
+            <div>
+                <h4>TCS</h4>
+                <small class="ticker-text">TCS.NS</small>
+            </div>
+        </div>
+        <p class="price">₹ 3,340.00</p>
+        <span class="status-badge safe-badge">● SAFE TREND</span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function promptLogin(path) {
+    const loginUrl = '{% url "login" %}';
+    window.location.href = loginUrl + '?next=' + encodeURIComponent(path);
+}
+</script>
+{% endblock %}

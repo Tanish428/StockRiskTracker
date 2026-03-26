@@ -1,17 +1,75 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}">
-<h2>Update Quiz Question</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Question | Admin</title>
+    {% load static %}
+    <style>
+        :root {
+            --bg-dark: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --amber: #f59e0b; --amber-hover: #d97706;
+            --border: rgba(255,255,255,0.08); --border-accent: rgba(255,255,255,0.15);
+            --transition: all 0.3s ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.1), transparent 50%); padding: 20px; }
+        
+        .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 600px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; }
+        .form-card h2 { font-size: 24px; font-weight: 800; margin-bottom: 30px; }
+        
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input { width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 15px; transition: var(--transition); }
+        .input-group input:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); background: rgba(15, 23, 42, 0.9); }
+        
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .options-grid .input-group { margin-bottom: 0; }
+        
+        .btn-submit { width: 100%; padding: 14px; margin-top: 10px; background: var(--amber); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .btn-submit:hover { background: var(--amber-hover); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4); }
+        
+        .back-link { display: inline-block; margin-top: 25px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 600; transition: var(--transition); }
+        .back-link:hover { color: var(--text-primary); }
+        
+        @media(max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
 
-<form method="POST">
-{% csrf_token %}
-<input type="text" name="question" value="{{ question.question }}" placeholder="Question" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
-<input type="text" name="option1" value="{{ question.option1 }}" placeholder="Option 1 (Safest - 1 point)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
-<input type="text" name="option2" value="{{ question.option2 }}" placeholder="Option 2 (Medium - 2 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
-<input type="text" name="option3" value="{{ question.option3 }}" placeholder="Option 3 (Riskiest - 3 points)" required style="width: 100%; padding: 8px; margin: 5px 0;"><br>
-<button type="submit">Update Question</button>
-</form>
+    <div class="form-card">
+        <h2>Update Quiz Question</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <label>Question</label>
+                <input type="text" name="question" value="{{ question.question }}" required>
+            </div>
+            
+            <div class="options-grid">
+                <div class="input-group">
+                    <label style="color:#10b981;">Option 1 (1 pt)</label>
+                    <input type="text" name="option1" value="{{ question.option1 }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label style="color:#f59e0b;">Option 2 (2 pts)</label>
+                    <input type="text" name="option2" value="{{ question.option2 }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label style="color:#ef4444;">Option 3 (3 pts)</label>
+                    <input type="text" name="option3" value="{{ question.option3 }}" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">Save Changes</button>
+        </form>
 
-<br>
-<a href="{% url 'manage_quiz' %}">
-<button>Back to Quiz Management</button>
-</a>
+        <a href="{% url 'manage_quiz' %}" class="back-link">← Cancel and go back</a>
+    </div>
+
+</body>
+</html>

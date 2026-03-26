@@ -1,21 +1,58 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}">
-<h2>Update Dictionary Term</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Term | Admin</title>
+    {% load static %}
+    <style>
+        :root {
+            --bg-dark: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --border: rgba(255,255,255,0.08); --border-accent: rgba(255,255,255,0.15);
+            --transition: all 0.3s ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.1), transparent 50%); padding: 20px; }
+        
+        .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 500px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; }
+        .form-card h2 { font-size: 24px; font-weight: 800; margin-bottom: 30px; }
+        
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input { width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 15px; transition: var(--transition); }
+        .input-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); background: rgba(15, 23, 42, 0.9); }
+        
+        .btn-submit { width: 100%; padding: 14px; margin-top: 10px; background: #10b981; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .btn-submit:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+        
+        .back-link { display: inline-block; margin-top: 25px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 600; transition: var(--transition); }
+        .back-link:hover { color: var(--text-primary); }
+    </style>
+</head>
+<body>
 
-<form method="POST">
+    <div class="form-card">
+        <h2>Update Dictionary Term</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <label>Term</label>
+                <input type="text" name="term" value="{{ term.term }}" required>
+            </div>
+            
+            <div class="input-group">
+                <label>Meaning</label>
+                <input type="text" name="meaning" value="{{ term.meaning }}" required>
+            </div>
+            
+            <button type="submit" class="btn-submit">Save Changes</button>
+        </form>
 
-{% csrf_token %}
+        <a href="{% url 'manage_dictionary' %}" class="back-link">← Cancel and go back</a>
+    </div>
 
-<input type="text" name="term" value="{{ term.term }}" required>
-
-<input type="text" name="meaning" value="{{ term.meaning }}" required>
-
-<button type="submit">Update</button>
-
-</form>
-
-<br>
-
-<a href="{% url 'manage_dictionary' %}">
-<button>Back</button>
-</a>
+</body>
+</html>

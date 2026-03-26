@@ -1,39 +1,121 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/register.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | StockRiskTracker</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --border: rgba(255,255,255,0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.15), transparent 25%);
+            color: var(--text-primary);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; padding: 20px;
+        }
+        .login-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px; padding: 40px; width: 100%; max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-icon { font-size: 42px; line-height: 1; margin-bottom: 10px; display: inline-block; animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .logo-text { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .alert { background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--primary); color: #93c5fd; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+        
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input {
+            width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border); border-radius: 12px;
+            color: var(--text-primary); font-size: 15px; transition: all 0.3s ease;
+        }
+        .input-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); background: rgba(15, 23, 42, 0.9); }
+        .input-group input::placeholder { color: #475569; }
+        
+        .btn-simple-login {
+            width: 100%; padding: 14px; margin-top: 10px;
+            background: var(--primary); color: white; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.2s;
+        }
+        .btn-simple-login:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-simple-login:active { transform: translateY(0); }
+        
+        .footer-links { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-secondary); }
+        .footer-links a { color: var(--primary); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        .footer-links a:hover { color: #60a5fa; text-decoration: underline; }
+    </style>
+</head>
+<body>
 
-<!-- ✅ TOP ALERT (MOVE HERE) -->
-{% if messages %}
-<div class="top-alert-container">
-    {% for message in messages %}
-        <div class="top-alert">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
+<div class="login-container">
+    <div class="logo-area">
+        <div class="logo-icon">📈</div>
+        <div class="logo-text">Join The Market</div>
+    </div>
 
-<div class="form-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Choose a username" required autocomplete="username">
+        </div>
 
-        <h2>Register</h2>
+        <div class="input-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter your email" required autocomplete="email">
+        </div>
 
-        <input type="text" name="username" placeholder="Username" required>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Create a password" required autocomplete="new-password">
+        </div>
 
-        <input type="email" name="email" placeholder="Email" required>
+        <div class="input-group">
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" placeholder="Confirm your password" required autocomplete="new-password">
+        </div>
 
-        <input type="password" name="password" placeholder="Password" required>
-
-        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-
-        <button type="submit">Register</button>
+        <button type="submit" class="btn-simple-login">Create Account</button>
     </form>
+
+    <div class="footer-links">
+        Already have an account? <a href="{% url 'login' %}">Sign in here</a>
+    </div>
 </div>
 
-<!-- ✅ AUTO HIDE SCRIPT -->
 <script>
     setTimeout(() => {
-        const alerts = document.querySelector('.top-alert-container');
-        if (alerts) {
-            alerts.style.display = 'none';
-        }
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.style.display = 'none', 500);
+        });
     }, 4000);
 </script>
+
+</body>
+</html>

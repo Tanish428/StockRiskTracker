@@ -1,48 +1,96 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}">
-<h2>All Users</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users | Admin</title>
+    {% load static %}
+    <style>
+        :root {
+            --bg-dark: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --red: #ef4444; --red-hover: #dc2626;
+            --border: rgba(255,255,255,0.08); --border-accent: rgba(255,255,255,0.15);
+            --transition: all 0.3s ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1), transparent 50%); }
+        
+        .admin-navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .admin-brand { display: flex; align-items: center; gap: 12px; }
+        .admin-brand h2 { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .back-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-accent); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: var(--transition); }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--text-secondary); }
 
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; width: 100%; }
+        .page-header { margin-bottom: 30px; display: flex; align-items: center; gap: 15px; }
+        .page-header h1 { font-size: 28px; font-weight: 800; }
+        
+        .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: rgba(255,255,255,0.03); padding: 16px 20px; font-size: 13px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+        .badge-admin { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-user { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
+        
+        .btn-delete { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none; display: inline-block; }
+        .btn-delete:hover { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+    </style>
+</head>
+<body>
 
-<table border="1">
+    <nav class="admin-navbar">
+        <div class="admin-brand">
+            <span style="font-size:24px;">👥</span>
+            <h2>StockRiskTracker Admin</h2>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="back-btn">← Back to Dashboard</a>
+    </nav>
 
-<tr>
-    <th>Username</th>
-    <th>Email</th>
-    <th>Date Joined</th>
-    <th>Role</th>
-    <th>Action</th>
-</tr>
+    <div class="container">
+        <div class="page-header">
+            <h1>All Users</h1>
+        </div>
 
-{% for u in users %}
-<tr>
-    <td>{{ u.username }}</td>
-    <td>{{ u.email }}</td>
-    <td>{{ u.date_joined }}</td>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Date Joined</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.username }}</strong></td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.date_joined|date:"M d, Y H:i" }}</td>
+                    <td>
+                        {% if u.is_superuser %}
+                            <span class="badge badge-admin">Admin</span>
+                        {% else %}
+                            <span class="badge badge-user">User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.id != request.user.id %}
+                        <a href="{% url 'delete_user' u.id %}" class="btn-delete">Delete</a>
+                        {% else %}
+                            <span style="color:var(--text-secondary); font-size:13px; font-weight:600;">Current</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
 
-    <td>
-        {% if u.is_superuser %}
-            Admin
-        {% else %}
-            User
-        {% endif %}
-    </td>
-
-    <td>
-        {% if u.id != request.user.id %}
-        <a href="{% url 'delete_user' u.id %}">
-            <button style="background:red;color:white;">Delete</button>
-        </a>
-        {% else %}
-            ---
-        {% endif %}
-    </td>
-
-</tr>
-{% endfor %}
-
-</table>
-
-<br><br>
-<a href="{% url 'admin_dashboard' %}">
-    <button>Back to Admin Dashboard</button>
-</a>
+</body>
+</html>
