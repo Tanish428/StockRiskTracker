@@ -110,8 +110,24 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+# settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# The backend to send real emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Gmail's SMTP server settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Your actual email address
+EMAIL_HOST_USER = 'tanishmistry007@gmail.com' 
+
+# The 16-character App Password you just generated (NOT your normal password)
+EMAIL_HOST_PASSWORD = 'ivtw igmp ohtk dgts' 
+
+# The default email address that shows up in the "From" field
+DEFAULT_FROM_EMAIL = 'StockRiskTracker <tanishmistry007@gmail.com>'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
