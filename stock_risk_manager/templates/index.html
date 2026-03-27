@@ -85,41 +85,26 @@
 </div>
 
 <div class="stock-grid">
-    <div class="stock-card safe" onclick="goToReport('RELIANCE.NS')">
+    {% for stock in top_stocks %}
+    <div class="stock-card {{ stock.css_class }}" onclick="goToReport('{{ stock.ticker }}')">
         <div class="stock-card-top">
-            <img src="{% static 'image/reliance-logo.png' %}" alt="Reliance" class="company-logo">
+            
+            <img src="{% static 'image/'|add:stock.logo_filename %}" 
+                 alt="{{ stock.name }}" 
+                 class="company-logo">
+            
             <div>
-                <h4>Reliance</h4>
-                <small class="ticker-text">RELIANCE.NS</small>
+                <h4>{{ stock.name }}</h4>
+                <small class="ticker-text">{{ stock.ticker }}</small>
             </div>
         </div>
-        <p class="price">₹ 2,456.80</p>
-        <span class="status-badge safe-badge">● SAFE</span>
+        
+        <p class="price">₹ {{ stock.price }}</p>
+        <span class="status-badge {{ stock.css_class }}-badge">● {{ stock.risk_status }}</span>
     </div>
-
-    <div class="stock-card risky" onclick="goToReport('ADANIPOWER.NS')">
-        <div class="stock-card-top">
-            <img src="{% static 'image/adani-logo.png' %}" alt="Adani Power" class="company-logo">
-            <div>
-                <h4>Adani Power</h4>
-                <small class="ticker-text">ADANIPOWER.NS</small>
-            </div>
-        </div>
-        <p class="price">₹ 312.40</p>
-        <span class="status-badge risky-badge">● RISKY</span>
-    </div>
-
-    <div class="stock-card safe" onclick="goToReport('TCS.NS')">
-        <div class="stock-card-top">
-            <img src="{% static 'image/tcs-logo.jpg' %}" alt="TCS" class="company-logo">
-            <div>
-                <h4>TCS</h4>
-                <small class="ticker-text">TCS.NS</small>
-            </div>
-        </div>
-        <p class="price">₹ 3,340.00</p>
-        <span class="status-badge safe-badge">● SAFE</span>
-    </div>
+    {% empty %}
+    <p>Loading live market data...</p>
+    {% endfor %}
 </div>
 
 {% endblock %}

@@ -1,4 +1,5 @@
 from decimal import Decimal
+from linecache import cache
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -7,14 +8,16 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from ..models import Profile, Transaction
 from ..services import get_live_inr_price
+import yfinance as yf
 
 @login_required
 def dashboard(request):
     """Main hub for buying stocks and viewing balance."""
     user_profile, created = Profile.objects.get_or_create(user=request.user)
 
+    # --- BUYING LOGIC ---
     if request.method == "POST":
-        ticker = request.POST.get('ticker').upper().strip() #standardizes the stock symbol.(reliance.nse -> RELIANCE.NS)
+        ticker = request.POST.get('ticker').upper().strip()
 
         # Sanitize Quantity
         try:
@@ -58,11 +61,16 @@ def dashboard(request):
 
         return redirect('dashboard')
 
+    # --- DASHBOARD DISPLAY LOGIC ---
+    dynamic_top_stocks = get_top_nifty_stocks()
+
     context = {
         'profile': user_profile,
         'wallet_balance': user_profile.wallet_balance,
-        'user_risk': user_profile.risk_category
+        'user_risk': user_profile.risk_category,
+        'top_stocks': dynamic_top_stocks
     }
+    
     return render(request, "index.html", context)
 
 @login_required
@@ -168,3 +176,70 @@ def reset_account(request):
         return redirect('history')
     
     return redirect('history')
+
+import yfinance as yf
+from django.core.cache import cache
+
+def get_top_nifty_stocks():
+    # 1. Check if we have cached data to prevent API rate limits
+    cached_stocks = cache.get('top_nifty_stocks')
+    if cached_stocks:
+        return cached_stocks
+
+    top_tickers = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'INFY.NS', 'SBIN.NS']
+    company_names = {
+        'RELIANCE.NS': 'Reliance',
+        'TCS.NS': 'TCS',
+        'HDFCBANK.NS': 'HDFC Bank',
+        'ICICIBANK.NS': 'ICICI Bank',
+        'INFY.NS': 'Infosys',
+        'SBIN.NS': 'SBI'    
+    }
+
+    live_stocks = []
+
+    for ticker in top_tickers:
+        try:
+            stock = yf.Ticker(ticker)
+            # Fetch 5 days of data to guarantee a result even on weekends
+            recent_data = stock.history(period='5d') 
+            
+            if not recent_data.empty:
+                # Grab current and old prices
+                current_price = round(recent_data['Close'].iloc[-1], 2) 
+                old_price = recent_data['Close'].iloc[0] # Price from 5 days ago
+                
+                # --- DYNAMIC RISK CALCULATION ---
+                # Calculate the percentage change over the last 5 days
+                price_change_percent = ((current_price - old_price) / old_price) * 100
+                
+                # If the stock dropped by more than 2%, flag it as RISKY
+                if price_change_percent < -2.0:
+                    risk_status = "RISKY"
+                    css_class = "risky"
+                else:
+                    risk_status = "SAFE"
+                    css_class = "safe"
+                # --------------------------------
+                
+                live_stocks.append({
+                    'ticker': ticker,
+                    'name': company_names.get(ticker, ticker),
+                    'price': current_price,
+                    'risk_status': risk_status, 
+                    'css_class': css_class,
+                    'logo_filename': f"{ticker.split('.')[0].lower()}-logo.png" 
+                })
+            else:
+                print(f"Warning: No data returned for {ticker}")
+                
+        except Exception as e:
+            # Print exact failure reason to terminal without crashing the page
+            print(f"FAILED to fetch {ticker}: {str(e)}")
+            continue 
+
+    # Save to cache for 5 minutes (300 seconds)
+    if live_stocks:
+        cache.set('top_nifty_stocks', live_stocks, 300)
+
+    return live_stocks
