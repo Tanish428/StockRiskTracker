@@ -14,7 +14,7 @@ StockRiskTracker is a comprehensive Django-based web application designed to hel
 
 ### 📊 Portfolio & Stock Tracking
 - **Interactive Dashboard**: Overview of current assets, risk distribution, and wallet status.
-- **Virtual Wallet**: Trade stocks using a simulated starting balance of \$10,000.00.
+- **Virtual Wallet**: Trade stocks using a simulated starting balance of ₹10,000.00.
 - **Stock Transactions**: Buy and sell stocks dynamically with real-time wallet adjustments and detailed history logs.
 - **Interactive Watchlist**: Save preferred tickers and access portfolio optimization suggestions.
 
